@@ -60,9 +60,7 @@ If the query is not related to the context. Respond with:
 
 YOU HAVE TO CITE THE EXACT DATA AND INCLUDE EXACT TEXT FROM THE CONTEXT.
 DO NOT MAKE UP ANYTHING.
-
-Query: Explain in depth (briefly) the given data.
-Answer: """
+"""
 QA_PROMPT = PromptTemplate(QA_PROMPT_TMPL)
 
 
