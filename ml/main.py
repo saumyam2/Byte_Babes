@@ -5,9 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from gender_bias import gender_bias_router
-
-# from rag import rag_controller, rag_service
 from ingest import ingest_controller
+# from rag import rag_controller, rag_service
+
+
+from databases import initialize_db
+
+initialize_db()
 
 
 app = FastAPI()
