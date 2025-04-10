@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from gender_bias import gender_bias_router
 
 # from rag import rag_controller, rag_service
-# from ingest import controller as ingest_controller
+from ingest import ingest_controller
 
 
 app = FastAPI()
@@ -33,9 +33,7 @@ app.mount(
 # Include only RAG and ingest routers
 app.include_router(gender_bias_router.router)
 # app.include_router(rag_controller.router)
-# app.include_router(
-#     ingest_controller.router, prefix="/knowledge-sources", tags=["knowledge-sources"]
-# )
+app.include_router(ingest_controller.router, tags=["knowledge-sources"])
 
 # # Initial ingest
 # print("Initial ingesting data...")
