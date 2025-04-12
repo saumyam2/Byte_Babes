@@ -1,5 +1,5 @@
 import { Hero } from "@/components/hero";
-// import { NavbarDemo } from "@/components/navbar";
+ import { NavbarDemo } from "@/components/navbar";
 import Image from "next/image";
 // import { AnimatedGradientDemo } from "../components/AnimatedGradientDemo";
 // import DatabaseWithRestApi from "@/components/ui/database-with-rest-api";
@@ -7,10 +7,12 @@ import Image from "next/image";
 import Spline from '@splinetool/react-spline/next';
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Keyboard from "@/components/spline";
+import { HeroScrollDemo } from "@/components/mockup";
+import { Pricing } from "@/components/blocks/pricing";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <NavbarDemo /> */}
+       <NavbarDemo /> 
       <main className="flex-1">
         <Hero />
         <div className="container mx-auto px-4 py-16">
@@ -57,20 +59,62 @@ export default function Home() {
 
           </div>
         </div>
-        <div className="container mx-auto px-4 py-16">
-          <h2 className="text-5xl font-bold text-center mb-16">See What We Catch</h2>
-          <p className="md:text-md mx-auto mb-16 mt-2 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl md:px-20 lg:text-lg">
-            Here’s a quick look at anomalies our engine flags. From suspicious discounts to irregular SKU patterns — we help you spot issues early.
-          </p>
-          {/* <TabsDemo/> */}
+        <div className="container mx-auto px-4 py-2">
+          
+          <HeroScrollDemo/>
         </div>
         <div className="container mx-auto px-4 py-16">
-          <h2 className="text-5xl font-bold text-center mb-16">How Our Product Helps</h2>
-          <p className="md:text-md mx-auto mb-16 mt-2 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl md:px-20 lg:text-lg">
-            We eliminate guesswork with AI-driven precision.
-            Your sales data becomes a source of strategic insight.
-          </p>
-          {/* <AnimatedGradientDemo /> */}
+          
+          <Pricing
+ plans = {[
+  {
+    name: "Free",
+    price: "0",
+    yearlyPrice: "0",
+    period: "per month",
+    features: [
+      "Access to job listings",
+      "Basic mentorship resources",
+      "AI-powered career guidance (limited queries)",
+    ],
+    description: "Perfect for individuals starting their career journey.",
+    buttonText: "Get Started",
+    href: "/sign-up",
+    isPopular: false,
+  },
+  {
+    name: "Pro",
+    price: "19",
+    yearlyPrice: "15",
+    period: "per month",
+    features: [
+      "Unlimited AI queries",
+      "Priority access to mentorship programs",
+      "Exclusive career events",
+      "Personalized job recommendations",
+    ],
+    description: "Ideal for professionals looking to advance their careers.",
+    buttonText: "Upgrade Now",
+    href: "/sign-up",
+    isPopular: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom Pricing",
+    yearlyPrice: "Custom Pricing",
+    period: "",
+    features: [
+      "Team access for organizations",
+      "Custom mentorship programs",
+      "Advanced analytics and insights",
+      "Dedicated support",
+    ],
+    description: "For organizations seeking tailored career solutions.",
+    buttonText: "Contact Us",
+    href: "/contact",
+    isPopular: false,
+  },
+]} />
         </div>
 
       </main>
