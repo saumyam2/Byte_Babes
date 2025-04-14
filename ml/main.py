@@ -10,6 +10,7 @@ from rag import rag_controller, rag_service
 from continuous_learning import continuous_learning_router
 from referral import referral_content_router
 from webscrape import web_scrape, webscrape_router
+from skill_gap_analysis import skill_gap_router
 
 
 from databases import initialize_db
@@ -44,6 +45,7 @@ app.include_router(ingest_controller.router, tags=["knowledge-sources"])
 app.include_router(continuous_learning_router.router)
 app.include_router(referral_content_router.router)
 app.include_router(webscrape_router.router)
+app.include_router(skill_gap_router.router)
 
 # Initial ingest
 print("Initial ingesting data...")
