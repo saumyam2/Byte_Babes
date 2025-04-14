@@ -65,3 +65,4 @@ def parse_resume(file_bytes: bytes) -> str:
             found_skills.add(skill)
 
     return sorted(list(found_skills))
+

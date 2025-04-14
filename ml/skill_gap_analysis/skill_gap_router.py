@@ -7,7 +7,9 @@ router = APIRouter(tags=["skill-gap-analysis"])
 
 
 @router.post("/skill-gap-analysis")
-async def analyze(resume: UploadFile = File(...), job_description: UploadFile = File(...)):
+async def analyze(
+    resume: UploadFile = File(...), job_description: UploadFile = File(...)
+):
     resume = await resume.read()
     job_description = await job_description.read()
 
