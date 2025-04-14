@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List
 from .continuous_learning_service import format_prompt_for_continuous_learning
 
-router = APIRouter(tags=["continuous_learning"])
+router = APIRouter(tags=["continuous-learning"])
 
 
 class ConversationEntry(BaseModel):
