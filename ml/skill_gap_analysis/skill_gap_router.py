@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, File, UploadFile, Form
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from skill_gap_analysis.resume_parser import parse_resume
+from ml.skill_gap_analysis.parser import parse
 
 router = APIRouter(tags=["skill-gap-analysis"])
 
@@ -13,8 +13,8 @@ async def analyze(
     resume = await resume.read()
     job_description = await job_description.read()
 
-    resume_skills = parse_resume(resume)
-    jd_skills = parse_resume(job_description)
+    resume_skills = parse(resume)
+    jd_skills = parse(job_description)
 
     print("Resume Skills:", resume_skills)
     print("Job Description Skills:", jd_skills)

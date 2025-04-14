@@ -45,7 +45,7 @@ SKILL_KEYWORDS = [
 ]
 
 
-def parse_resume(file_bytes: bytes) -> str:
+def parse(file_bytes: bytes) -> str:
     """
     Extracts text and skills from resume PDF content.
     :param file_bytes: PDF file content as bytes
