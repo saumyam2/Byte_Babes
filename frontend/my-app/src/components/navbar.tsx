@@ -7,7 +7,6 @@ export function NavbarDemo() {
   return (
     <div className="relative w-full flex items-center justify-center">
       <Navbar className="top-2" />
-     
     </div>
   );
 }
@@ -63,7 +62,11 @@ function Navbar({ className }: { className?: string }) {
             <HoveredLink href="/enterprise">Enterprise</HoveredLink>
           </div>
         </MenuItem>
+        <HoveredLink href="/login" className="text-sm font-medium">
+          Login
+        </HoveredLink>
       </Menu>
+      
     </div>
   );
 }
