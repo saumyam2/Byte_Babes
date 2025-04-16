@@ -30,4 +30,7 @@ app.use('/chatbot',chatbotRouter)
 const feedbackRouter = require('./routes/feedback')
 app.use('/feedback',feedbackRouter)
 
+const jobsRouter = require('./routes/fetchjobs')
+app.use('/jobs',jobsRouter)
+
 module.exports=app
