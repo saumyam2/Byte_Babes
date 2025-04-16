@@ -21,13 +21,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={poppins.className}>
-        <ThemeProvider  enableSystem={false} disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <div className={poppins.className}>
+      <ThemeProvider enableSystem={false} disableTransitionOnChange>
+        {children}
+      </ThemeProvider>
+    </div>
   )
 }
 
