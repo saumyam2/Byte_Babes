@@ -1,66 +1,82 @@
 import os
-import json
-
+from textwrap import dedent
 from typing import List
-import google.generativeai as genai
-from pydantic import BaseModel
+
+from agno.agent import Agent, RunResponse
+from agno.tools.googlesearch import GoogleSearchTools
+from agno.models.google import Gemini
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.environ.get("GEMINI_API_KEY")
 
 class CourseRecommendation(BaseModel):
-    url: str
-    certification_available: bool
+    url: str = Field(
+        ...,
+        description="Direct URL to the course. If not available, use 'N/A'."
+    )
+    certification: bool = Field(
+        ...,
+        description="Whether the course provides a certificate of completion (true or false)."
+    )
+
 
 class Step(BaseModel):
-    step_title: str
-    recommended_courses: List[CourseRecommendation]
+    title: str = Field(
+        ...,
+        description="The title for this learning step (e.g., 'Master React Hooks'). Should clearly summarize the learning goal."
+    )
+    recommended_courses: List[CourseRecommendation] = Field(
+        ...,
+        description="A list of 2-3 curated courses that help achieve this step's goal."
+    )
+
 
 class LearningRoadmap(BaseModel):
-    steps: List[Step]
+    steps: List[Step] = Field(
+        ...,
+        description="A 3 to 5-step learning progression, each building on the previous, leading to mastery of the skill."
+    )
 
 
-def get_skill_learning_roadmap(skill: str) -> str:
-    return f"""
-You are an expert learning path designer and career mentor.
+def generate_learning_roadmap(prompt: str) -> dict:
+    agent = Agent(
+        model=Gemini(id="gemini-2.0-flash"),
+        description=dedent("""\
+            You are a world-class skill mentor and learning architect trusted by millions of learners! 📚
+            With the clarity of Sal Khan, the depth of Andrew Ng, and the structure of MIT OCW,
+            you design powerful, step-by-step learning journeys that make complex topics accessible and actionable.
 
-Please provide a 5-step learning roadmap for mastering the skill: **{skill}**
+            Your specialty is breaking down high-level skills into 3–5 progressive steps, each with curated, high-quality course recommendations. 
+            You DON'T HALLUCINATE while searching for links on Google for URLS\
+        """),
+        instructions=dedent("""\
+            When crafting learning roadmaps, follow these principles:
 
-At each step, include:
-1. A step title (like “Redux”)
-2. A list of **3 recommended courses** for each step, each containing:
-    - Course URL
-    - Whether a certificate is available (True/False)
-"""
+            1. Define a clear progression:
+               - Break the target skill into logical stages of learning (max 5)
+               - Ensure each step builds on the previous one
+               - Start from beginner-friendly foundations and move to advanced mastery
 
+            2. Add value to each step:
+               - Use simple, actionable step titles (e.g., “Master React State Management”)
+               - Give a short but informative description of what the learner will gain
+               - Avoid jargon unless explained clearly
 
-def get_skill_roadmap(skill: str) -> dict:
-    prompt = get_skill_learning_roadmap(skill)
+            3. Curate recommended courses:
+               - Provide 2–3 highly relevant online courses per step. Use GOOGLE to search for URLS and give correct URLS.
+               - Include URL and whether certification is available
+               - Prefer free or affordable options when possible
+        """),
+        response_model=LearningRoadmap,
+        use_json_mode=True,
+        tools=[GoogleSearchTools()],
+    )
 
-    genai.configure(api_key=API_KEY)
-    client = genai.GenerativeModel(model_name="gemini-2.0-flash")
-
-    try:
-        response = client.generate_content(
-            contents=prompt,
-            generation_config=genai.types.GenerationConfig(
-                response_mime_type="application/json",
-            ),
-        )
-
-        if not response.text:
-            raise ValueError("API response text is empty.")
-
-        return json.loads(response.text)
-
-    except Exception as e:
-        print(f"Error generating roadmap: {e}")
-        raise
-
+    response: RunResponse = agent.run(prompt)
+    return response.content
 
 if __name__ == "__main__":
-    skill = "React"
-    roadmap = get_skill_roadmap(skill)
-    print(json.dumps(roadmap, indent=2))
+    roadmap = generate_learning_roadmap("Learn Web Development")
+    print(roadmap)

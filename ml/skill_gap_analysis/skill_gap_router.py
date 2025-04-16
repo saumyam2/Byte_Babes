@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import JSONResponse
 from skill_gap_analysis.parser import parse
-from skill_gap_analysis.skill_gap_service import get_skill_roadmap
+from skill_gap_analysis.skill_gap_service import generate_learning_roadmap
 
 router = APIRouter(tags=["skill-gap-analysis"])
 
@@ -22,14 +22,12 @@ async def analyze(
 
     for skill in missing_skills:
         try:
-            roadmap = get_skill_roadmap(skill)
-            roadmaps[skill] = roadmap
+            roadmap = generate_learning_roadmap(skill)
+            roadmaps[skill] = roadmap.dict()
         except Exception as e:
             roadmaps[skill] = {"error": str(e)}
 
     if roadmaps:
         return JSONResponse(content=roadmaps)
     else:
-        return JSONResponse(
-            content={"message": "No missing skills found."}
-        )
+        return JSONResponse(content={"message": "No missing skills found."})
