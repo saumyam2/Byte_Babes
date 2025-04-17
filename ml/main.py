@@ -12,6 +12,8 @@ from referral import referral_content_router
 from webscrape import web_scrape, webscrape_router
 from skill_gap_analysis import skill_gap_router
 from fallback_mechanism.fallback_router import router as fall_router
+from content_moderation.moderation_router import router as mod_router
+
 
 from databases import initialize_db
 
@@ -47,6 +49,7 @@ app.include_router(referral_content_router.router)
 app.include_router(webscrape_router.router)
 app.include_router(skill_gap_router.router)
 app.include_router(fall_router)
+app.include_router(mod_router)
 
 # Initial ingest
 print("Initial ingesting data...")
