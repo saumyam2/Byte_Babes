@@ -16,7 +16,7 @@ from content_moderation.moderation_router import router as mod_router
 from linkedin_template.template_router import router as temp_router
 from career_pathway.career_router import router as car_router
 from resume_builder.resume_router import router as builder_router
-
+from context_aware.context_router import router as contxt_router
 
 from databases import initialize_db
 
@@ -56,6 +56,7 @@ app.include_router(mod_router)
 app.include_router(temp_router)
 app.include_router(car_router)
 app.include_router(builder_router)
+app.include_router(contxt_router)
 
 # Initial ingest
 print("Initial ingesting data...")
