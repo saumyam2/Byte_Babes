@@ -1,38 +1,38 @@
 const Session = require('../model/chatbot');
+const path = require('path');
 
 const handleUserMessage = async (req, res) => {
     try {
-        const userMessage = req.body.message; 
-        const session = req.session;  
-        console.log("User:", req.user?._id); // Access userId from req.user
-
-        // Save the user message in the session
-        session.conversation.push({ sender: "user", message: userMessage });
-
-        let botResponse = "I'm here to help!";
-        if (userMessage.toLowerCase().includes("job")) {
-            botResponse = "What type of job are you looking for?";
-        } else if (userMessage.toLowerCase().includes("remote")) {
-            botResponse = "Are you looking for remote jobs?";
-        }
-
-        // Save bot response
-        session.conversation.push({ sender: "bot", message: botResponse });
-
-        // Save session
-        await session.save();
-
-        // Return chatbot response
-        res.json({
-            sessionId: req.sessionId,
-            botResponse: botResponse,
-        });
-
+      const session = req.session;
+      const userMessage = req.body.message;
+      const file = req.file;
+  
+      const messageEntry = {
+        sender: 'user',
+        message: userMessage || null,
+        fileUrl: file ? `/uploads/${file.filename}` : null,
+        fileType: file?.mimetype || null,
+        originalName: file?.originalname || null
+      };
+  
+      session.conversation.push(messageEntry);
+  
+      //response from ML model
+      let botResponse = "Thanks for your input!";
+      session.conversation.push({ sender: "bot", message: botResponse });
+  
+      await session.save();
+  
+      res.json({
+        sessionId: req.sessionId,
+        botResponse: botResponse
+      });
+  
     } catch (error) {
-        console.error("Error in chat controller:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error in chat controller:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-};
+  };
 
 
 const getSession=async (req,res)=>{
