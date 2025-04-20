@@ -1,96 +1,116 @@
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useState } from "react"
-import { Message } from "@/types"
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { analyzeSkillGap } from '@/services/skillGapService';
+import { Message } from "@/types";
 
-interface ResumeFeedbackProps {
-  onUploadResume: (message: Message) => void
-}
-
-export function ResumeFeedback({ onUploadResume }: ResumeFeedbackProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-      
-      // Create file upload message
-      const fileMessage: Message = {
-        id: `user-${Date.now()}`,
-        content: `Uploaded resume: ${file.name}`,
-        role: "user",
-        timestamp: new Date(),
-      }
-      onUploadResume(fileMessage)
-
-      // Simulate processing the resume
-      setTimeout(() => {
-        const feedbackMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          content: (
-            <div className="space-y-4">
-              <p>Thank you for uploading your resume! Here's my feedback:</p>
-              <Card className="p-4">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium">Strengths</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>Clear career progression</li>
-                      <li>Strong technical skills section</li>
-                      <li>Good use of metrics in achievements</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Areas for Improvement</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li>Consider adding more quantifiable achievements</li>
-                      <li>Include relevant keywords for ATS optimization</li>
-                      <li>Expand on leadership experiences</li>
-                    </ul>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Download Feedback</Button>
-                    <Button size="sm">Apply Suggestions</Button>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          ),
-          role: "assistant",
-          timestamp: new Date(),
-        }
-        onUploadResume(feedbackMessage)
-      }, 2000)
-    }
-  }
-
+export const SkillGapAnalysis = ({ onUploadResume }: { onUploadResume?: (message: Message) => void }) => {
   return (
-    <div className="space-y-4">
-      <p>Upload your resume for personalized feedback on:</p>
-      <Card className="p-4">
-        <ul className="list-disc pl-5 space-y-2">
-          <li>ATS optimization</li>
-          <li>Impactful achievement statements</li>
-          <li>Skills alignment with target roles</li>
-          <li>Formatting and presentation</li>
-        </ul>
-        <div className="mt-4">
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={handleFileChange}
-            className="hidden"
-            id="resume-upload"
-          />
-          <Button
-            className="w-full"
-            onClick={() => document.getElementById('resume-upload')?.click()}
-          >
-            Upload Resume
-          </Button>
-        </div>
-      </Card>
+    <div>
+      {/* Component implementation */}
+      {onUploadResume && (
+        <button onClick={() => onUploadResume({ id: "1", content: "Resume uploaded", role: "user", timestamp: new Date() })}>
+          Upload Resume
+        </button>
+      )}
     </div>
   )
-} 
+}
+
+export function SkillGapAnalysisComponent() {
+  const [file, setFile] = useState<File | null>(null);
+  const [jobDescription, setJobDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file || !jobDescription) {
+      setError('Please provide both resume and job description');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const analysis = await analyzeSkillGap(file, jobDescription);
+      setResults(analysis);
+    } catch (err) {
+      setError('Failed to analyze skill gap. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-2">Upload Resume</label>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2">Job Description</label>
+            <Input
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste job description here..."
+              className="min-h-[150px]"
+            />
+          </div>
+
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Analyzing...' : 'Analyze Skills'}
+          </Button>
+        </form>
+      </Card>
+
+      {error && (
+        <div className="text-red-500 p-4 bg-red-50 rounded">
+          {error}
+        </div>
+      )}
+
+      {results && (
+        <Card className="p-6">
+          <h2 className="text-xl font-bold mb-4">Skill Gap Analysis Results</h2>
+          {Object.entries(results).map(([skill, details]: [string, any]) => (
+            <div key={skill} className="mb-6">
+              <h3 className="font-semibold text-lg mb-2">{skill}</h3>
+              <div className="pl-4">
+                <p><strong>Difficulty:</strong> {details.difficulty}</p>
+                <p><strong>Timeline:</strong> {details.timeline}</p>
+                <div className="mt-2">
+                  <strong>Prerequisites:</strong>
+                  <ul className="list-disc pl-5">
+                    {details.prerequisites.map((prereq: string, i: number) => (
+                      <li key={i}>{prereq}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-2">
+                  <strong>Learning Resources:</strong>
+                  <ul className="list-disc pl-5">
+                    {details.resources.map((resource: string, i: number) => (
+                      <li key={i}>{resource}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </Card>
+      )}
+    </div>
+  );
+}

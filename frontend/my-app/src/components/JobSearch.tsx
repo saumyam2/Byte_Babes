@@ -2,6 +2,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useState } from "react"
 import { Message } from "@/types"
+import { JobCards } from "./JobCards"
+
+// API base URL
+const API_BASE_URL = "http://localhost:8086"
 
 interface JobSearchProps {
   onSearch: (message: Message) => void
@@ -12,12 +16,19 @@ export function JobSearch({ onSearch }: JobSearchProps) {
   const [location, setLocation] = useState("")
   const [experience, setExperience] = useState("")
   const [skills, setSkills] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [jobs, setJobs] = useState<any[]>([])
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!role) {
       alert("Please enter a job role")
       return
     }
+
+    setIsLoading(true)
+    setError(null)
+    setJobs([]) // Clear previous results
 
     const searchMessage: Message = {
       id: `user-${Date.now()}`,
@@ -27,74 +38,92 @@ export function JobSearch({ onSearch }: JobSearchProps) {
     }
     onSearch(searchMessage)
 
-    // Simulate job search results
-    setTimeout(() => {
-      const resultsMessage: Message = {
+    try {
+      // Format skills as array
+      const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
+      
+      // Format titles as array - ensure it's not empty
+      const titlesArray = role.split(",").map(t => t.trim()).filter(Boolean)
+      if (titlesArray.length === 0) {
+        titlesArray.push(role.trim())
+      }
+
+      const requestBody = {
+        skills: skillsArray,
+        titles: titlesArray,
+        location: location || "IN",
+        remote: true,
+        days: 14
+      }
+
+      console.log("Making API request to:", `${API_BASE_URL}/jobs/search`)
+      console.log("Request body:", requestBody)
+
+      const response = await fetch(`${API_BASE_URL}/jobs/search`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log("Response status:", response.status)
+      const data = await response.json()
+      console.log("Response data:", data)
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch jobs: ${data.message || response.statusText}`)
+      }
+      
+      if (data.success && Array.isArray(data.data)) {
+        // Transform job data to match JobCards interface
+        const formattedJobs = data.data.map((job: any) => ({
+          id: job.id.toString(),
+          title: job.job_title,
+          company: job.company,
+          location: job.remote ? "Remote" : job.location,
+          salary: job.salary_string || "Salary not specified",
+          description: job.description,
+          posted: new Date(job.date_posted).toLocaleDateString(),
+          logo: job.company_object?.logo || "",
+          url: job.url || job.source_url || null
+        }))
+        
+        console.log("Formatted jobs:", formattedJobs)
+        setJobs(formattedJobs)
+
+        const resultsMessage: Message = {
+          id: `assistant-${Date.now()}`,
+          content: `Found ${formattedJobs.length} matching jobs`,
+          role: "assistant",
+          timestamp: new Date(),
+        }
+        onSearch(resultsMessage)
+      } else {
+        console.error("Invalid response format:", data)
+        throw new Error(data.message || "No jobs found or invalid response format")
+      }
+    } catch (err) {
+      console.error("Search error:", err)
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while searching for jobs"
+      setError(errorMessage)
+      const errorMsg: Message = {
         id: `assistant-${Date.now()}`,
-        content: (
-          <div className="space-y-4">
-            <p>Here are some relevant job opportunities and what you need in your resume:</p>
-            <Card className="p-4">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium mb-2">Job Opportunities</h3>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                      <span className="font-medium">Senior {role}</span> at TechCorp
-                      <p className="text-sm text-gray-600">Location: {location || "Remote"}</p>
-                      <p className="text-sm text-gray-600">Experience: {experience || "5+ years"}</p>
-                    </li>
-                    <li>
-                      <span className="font-medium">{role} Lead</span> at InnovateX
-                      <p className="text-sm text-gray-600">Location: {location || "Hybrid"}</p>
-                      <p className="text-sm text-gray-600">Experience: {experience || "3+ years"}</p>
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="font-medium mb-2">Resume Requirements</h3>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>
-                      <span className="font-medium">Skills to Highlight:</span>
-                      <ul className="list-disc pl-5 mt-1">
-                        <li>Technical expertise in {skills || "relevant technologies"}</li>
-                        <li>Project management experience</li>
-                        <li>Team leadership abilities</li>
-                      </ul>
-                    </li>
-                    <li>
-                      <span className="font-medium">Experience to Include:</span>
-                      <ul className="list-disc pl-5 mt-1">
-                        <li>{experience || "Relevant"} years of industry experience</li>
-                        <li>Successful project implementations</li>
-                        <li>Cross-functional team collaboration</li>
-                      </ul>
-                    </li>
-                    <li>
-                      <span className="font-medium">Achievements to Showcase:</span>
-                      <ul className="list-disc pl-5 mt-1">
-                        <li>Quantifiable results and metrics</li>
-                        <li>Problem-solving examples</li>
-                        <li>Innovation and process improvements</li>
-                      </ul>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">Save Job List</Button>
-                  <Button size="sm">Update Resume</Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        ),
+        content: `Error: ${errorMessage}`,
         role: "assistant",
         timestamp: new Date(),
       }
-      onSearch(resultsMessage)
-    }, 1500)
+      onSearch(errorMsg)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
   }
 
   return (
@@ -109,6 +138,7 @@ export function JobSearch({ onSearch }: JobSearchProps) {
               placeholder="e.g., Product Manager, Software Engineer"
               value={role}
               onChange={(e) => setRole(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
           </div>
           <div>
@@ -118,6 +148,7 @@ export function JobSearch({ onSearch }: JobSearchProps) {
               placeholder="e.g., Remote, San Francisco"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
           </div>
           <div>
@@ -127,25 +158,45 @@ export function JobSearch({ onSearch }: JobSearchProps) {
               placeholder="e.g., 5 years, Entry Level"
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Key Skills</label>
+            <label className="block text-sm font-medium mb-1">Key Skills (comma-separated)</label>
             <input 
               className="w-full p-2 border rounded" 
               placeholder="e.g., React, Python, Project Management"
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
           </div>
           <Button 
             className="w-full"
             onClick={handleSearch}
+            disabled={isLoading}
           >
-            Search Jobs
+            {isLoading ? "Searching..." : "Search Jobs"}
           </Button>
         </div>
       </Card>
+
+      {error && (
+        <div className="text-red-500 text-sm p-4 bg-red-50 rounded-md">
+          {error}
+        </div>
+      )}
+
+      {jobs.length > 0 ? (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Found {jobs.length} matching jobs</h2>
+          <JobCards jobs={jobs} />
+        </div>
+      ) : !isLoading && !error && (
+        <div className="mt-8 text-center text-gray-500">
+          No jobs found. Try adjusting your search criteria.
+        </div>
+      )}
     </div>
   )
 } 

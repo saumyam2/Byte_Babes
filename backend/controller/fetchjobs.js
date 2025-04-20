@@ -1,5 +1,5 @@
 const axios = require("axios");
-
+require('dotenv').config();
 const FREE_JOB_API_KEY = process.env.FREE_JOB_API_KEY;
 
 // Build job search filter based on user input

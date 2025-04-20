@@ -1,4 +1,5 @@
 "use client"
+import { chatApi } from "@/services/ChatApi"
 
 import { useState } from "react"
 import { MessageList } from "@/components/MessageList"
@@ -11,7 +12,7 @@ import { SmartSuggestionChips } from "@/components/SmartSuggestionChips"
 import { LeftPane } from "@/components/LeftPane"
 import { CareerRoadmap } from "@/components/CareerRoadmap"
 import { SuccessStories } from "@/components/SuccessStories"
-import { ResumeFeedback } from "@/components/ResumeFeedback"
+import { SkillGapAnalysis } from "@/components/ResumeFeedback"
 import { ColdEmailTemplate } from "@/components/ColdEmailTemplate"
 import { useMediaQuery } from "../../../hooks/use-mobile"
 import { Button } from "@/components/ui/button"
@@ -150,55 +151,46 @@ export default function Home() {
     },
   ]
 
-  const handleSendMessage = (message: string, file?: File) => {
+ 
+  const handleSendMessage = async (message: string, file?: File) => {
     if (!message.trim() && !file) return
-
-    // Add user message
+  
     const newUserMessage: Message = {
       id: Date.now().toString(),
       content: message,
       role: "user",
       timestamp: new Date(),
     }
-
+  
     setMessages((prev) => [...prev, newUserMessage])
-
-    // Show typing indicator
     setIsTyping(true)
-
-    // Simulate bot response
-    setTimeout(() => {
-      setIsTyping(false)
-
-      let botResponse: Message
-
-      if (message.toLowerCase().includes("remote") && message.toLowerCase().includes("product manager")) {
-        botResponse = {
-          id: (Date.now() + 1).toString(),
-          content: (
-            <div className="space-y-4">
-              <p>Here are remote product manager roles in fintech with diversity hiring programs:</p>
-              <JobListings jobs={jobListings} />
-              <p>What else can I do for you?</p>
-              <SuggestionChips chips={suggestionChips} onChipClick={() => {}} />
-            </div>
-          ),
-          role: "assistant",
-          timestamp: new Date(),
-        }
-      } else {
-        botResponse = {
-          id: (Date.now() + 1).toString(),
-          content: "I'm here to help you with your career journey. What would you like to do?",
-          role: "assistant",
-          timestamp: new Date(),
-        }
+  
+    try {
+      // Call your backend
+      const response = await chatApi.sendMessage(message)
+  
+      const botMessage: Message = {
+        id: Date.now().toString(),
+        content: response.reply || "Sorry, I didn't quite get that!",
+        role: "assistant",
+        timestamp: new Date(),
       }
-
-      setMessages((prev) => [...prev, botResponse])
-    }, 1000)
+  
+      setMessages((prev) => [...prev, botMessage])
+    } catch (error) {
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content: "Oops! Something went wrong. Please try again.",
+        role: "assistant",
+        timestamp: new Date(),
+      }
+  
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
+    }
   }
-
+  
   const handleSmartChipClick = (action: string, message: string) => {
     const timestamp = Date.now()
     
@@ -254,7 +246,7 @@ export default function Home() {
       case "resume_feedback":
         response = {
           id: `assistant-${timestamp}`,
-          content: <ResumeFeedback onUploadResume={(message) => setMessages((prev) => [...prev, message])} />,
+          content: <SkillGapAnalysis onUploadResume={(message: Message) => setMessages((prev) => [...prev, message])} />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }
@@ -337,77 +329,4 @@ export default function Home() {
     </div>
   )
 }
-// "use client"
-
-// import { Gravity, MatterBody } from "../components/Gravity"
-
-// export default function Home() {
-//   return (
-//     <div className="w-full h-full min-h-[500px] flex flex-col relative font-azeretMono">
-//       <div className="pt-20 text-6xl sm:text-7xl md:text-8xl text-black w-full text-center font-calendas italic">
-//         fancy
-//       </div>
-//       <p className="pt-4 text-base sm:text-xl md:text-2xl text-black w-full text-center">
-//         components made with:
-//       </p>
-//       <Gravity gravity={{ x: 0, y: 1 }} className="w-full h-full">
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="30%"
-//           y="10%"
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-[#0015ff] text-white rounded-full hover:cursor-pointer px-8 py-4">
-//             react
-//           </div>
-//         </MatterBody>
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="30%"
-//           y="30%"
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-[#E794DA] text-white rounded-full hover:cursor-grab px-8 py-4 ">
-//             typescript
-//           </div>
-//         </MatterBody>
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="40%"
-//           y="20%"
-//           angle={10}
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-[#1f464d]  text-white rounded-full hover:cursor-grab px-8 py-4 ">
-//             motion
-//           </div>
-//         </MatterBody>
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="75%"
-//           y="10%"
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-[#ff5941]  text-white [#E794DA] rounded-full hover:cursor-grab px-8 py-4 ">
-//             tailwind
-//           </div>
-//         </MatterBody>
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="80%"
-//           y="20%"
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-orange-500  text-white [#E794DA] rounded-full hover:cursor-grab px-8 py-4 ">
-//             drei
-//           </div>
-//         </MatterBody>
-//         <MatterBody
-//           matterBodyOptions={{ friction: 0.5, restitution: 0.2 }}
-//           x="50%"
-//           y="10%"
-//         >
-//           <div className="text-xl sm:text-2xl md:text-3xl bg-[#ffd726]  text-white [#E794DA] rounded-full hover:cursor-grab px-8 py-4 ">
-//             matter-js
-//           </div>
-//         </MatterBody>
-//       </Gravity>
-//     </div>
-//   )
-// }
 
