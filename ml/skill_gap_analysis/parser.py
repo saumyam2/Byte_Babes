@@ -42,6 +42,7 @@ SKILL_KEYWORDS = [
     "crewai",
     "next.js",
     "express.js",
+    "blockchain",
 ]
 
 
