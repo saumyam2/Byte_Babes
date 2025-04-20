@@ -1,5 +1,7 @@
 import os
 import requests
+from deep_translator import GoogleTranslator
+from langdetect import detect
 from dotenv import load_dotenv
 
 # Load Groq API key
@@ -7,7 +9,10 @@ load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-def call_groq_model(prompt: str, model: str = "llama3-8b-8192") -> str:
+def call_groq_model(prompt: str, user_lang: str = "en", model: str = "llama3-8b-8192") -> str:
+    if user_lang != "en":
+        prompt = GoogleTranslator(source='auto', target='en').translate(prompt)
+
     headers = {
         "Authorization": f"Bearer {groq_api_key}",
         "Content-Type": "application/json"
@@ -24,4 +29,9 @@ def call_groq_model(prompt: str, model: str = "llama3-8b-8192") -> str:
 
     response = requests.post(GROQ_API_URL, headers=headers, json=payload)
     response.raise_for_status()
-    return response.json()["choices"][0]["message"]["content"]
+    result = response.json()["choices"][0]["message"]["content"]
+    
+    if user_lang != "en":
+        result = GoogleTranslator(source='en', target=user_lang).translate(result)
+
+    return result
