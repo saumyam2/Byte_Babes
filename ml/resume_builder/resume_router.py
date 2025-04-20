@@ -1,6 +1,6 @@
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
-from resume_client import optimize_resume
+from resume_builder.resume_client import optimize_resume
 
 router = APIRouter()
 

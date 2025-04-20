@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from career_client import generate_career_pathway
+from career_pathway.career_client import generate_career_pathway
 
 router = APIRouter()
 

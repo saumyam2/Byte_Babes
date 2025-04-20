@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from context_client import get_chat_response
+from context_aware.context_client import get_chat_response
 
 router = APIRouter()
 

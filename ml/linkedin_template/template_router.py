@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from template_client import generate_linkedin_message_with_groq
+from linkedin_template.template_client import generate_linkedin_message_with_groq
 
 router = APIRouter()
 

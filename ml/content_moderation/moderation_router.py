@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from moderation_client import check_toxicity, check_content_with_llm
+from content_moderation.moderation_client import check_toxicity, check_content_with_llm
 from pydantic import BaseModel
 
 router = APIRouter()
