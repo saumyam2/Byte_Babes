@@ -33,4 +33,7 @@ app.use('/feedback',feedbackRouter)
 const jobsRouter = require('./routes/fetchjobs')
 app.use('/jobs',jobsRouter)
 
+const eventsRouter = require('./routes/getevents')
+app.use('/events',eventsRouter)
+
 module.exports=app
