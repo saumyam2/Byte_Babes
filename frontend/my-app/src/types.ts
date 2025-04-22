@@ -43,3 +43,15 @@ export type MentorProfile = {
   availability: string
   avatar: string
 } 
+
+export interface Job {
+  id: string
+  title: string
+  company: string
+  location: string
+  salary: string
+  description: string
+  posted: string
+  logo: string
+  url: string
+}
