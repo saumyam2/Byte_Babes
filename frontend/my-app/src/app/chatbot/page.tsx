@@ -1,6 +1,6 @@
 "use client"
 import { chatApi } from "@/services/ChatApi"
-
+import axios from "axios"
 import { useState } from "react"
 import { MessageList } from "@/components/MessageList"
 import { SuggestionChips } from "@/components/SuggestionChips"
@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button"
 import { Message } from "@/types"
 import { JobSearch } from "@/components/JobSearch"
 import ResumeFeedback from "@/components/ResumeFeedback"
+import EventsComponent from "@/components/EventsDetail";
+import { Clock, MapPin, ExternalLink } from "lucide-react"
 
 // Types
 type SuggestionChip = {
@@ -83,6 +85,7 @@ export default function Home() {
     { id: "mentor", label: "Find Mentor", icon: "🤝", color: "#D2B6E2" },
     { id: "interview", label: "Mock Interview", icon: "🎤", color: "#FFE4EC" },
     { id: "resume", label: "Resume feedback", icon: "📝", color: "#DCF1F9" },
+    { id: "events", label: "Find Events", icon: "📅", color: "#D2B6E2" },
   ]
 
   const jobListings: JobListing[] = [
@@ -152,7 +155,6 @@ export default function Home() {
     },
   ]
 
- 
   const handleSendMessage = async (message: string, file?: File) => {
     if (!message.trim() && !file) return
   
@@ -167,26 +169,98 @@ export default function Home() {
     setIsTyping(true)
   
     try {
-      // Call your backend
-      const response = await chatApi.sendMessage(message)
-  console.log('API Response:', response)
-  const botMessage: Message = {
-    id: Date.now().toString(),
-    content: response.botResponse || "Sorry, I didn't quite get that!", // Changed from response.reply
-    role: "assistant",
-    timestamp: new Date(),
-  }
-  
-      setMessages((prev) => [...prev, botMessage])
-    } catch (error) {
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        content: "Oops! Something went wrong. Please try again.",
-        role: "assistant",
-        timestamp: new Date(),
+      // Check if it's an event-related query
+      if (message.toLowerCase().includes('event') || message.toLowerCase().includes('meetup') || message.toLowerCase().includes('conference')) {
+        try {
+          // Call events API
+          const response = await axios.post('http://localhost:8086/events/getevents', {
+            q: message
+          });
+
+          if (response.data.success) {
+            const events = response.data.data;
+            const botMessage: Message = {
+              id: Date.now().toString(),
+              content: <div className="space-y-4">
+                <p>Here are some events that might interest you:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {events.map((event: any, index: number) => (
+                    <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                      {event.thumbnail && (
+                        <div className="relative h-48 overflow-hidden bg-gray-200">
+                          <img 
+                            src={event.thumbnail} 
+                            alt={event.title} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <h3 className="font-semibold mb-2">{event.title}</h3>
+                        {event.date?.when && (
+                          <p className="text-sm text-gray-600 mb-2">
+                            <Clock className="inline-block w-4 h-4 mr-1" />
+                            {event.date.when}
+                          </p>
+                        )}
+                        {event.venue?.name && (
+                          <p className="text-sm text-gray-600">
+                            <MapPin className="inline-block w-4 h-4 mr-1" />
+                            {event.venue.name}
+                          </p>
+                        )}
+                        {event.link && (
+                          <a 
+                            href={event.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>,
+              role: "assistant",
+              timestamp: new Date(),
+            }
+            setMessages((prev) => [...prev, botMessage])
+          } else {
+            throw new Error("Failed to fetch events");
+          }
+        } catch (error) {
+          const errorMessage: Message = {
+            id: Date.now().toString(),
+            content: "I apologize, but I couldn't fetch the events at the moment. Please try again later.",
+            role: "assistant",
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, errorMessage])
+        }
+      } else {
+        try {
+          // Handle other types of messages
+          const response = await chatApi.sendMessage(message)
+          const botMessage: Message = {
+            id: Date.now().toString(),
+            content: response.botResponse || "Sorry, I didn't quite get that!",
+            role: "assistant",
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, botMessage])
+        } catch (error) {
+          const errorMessage: Message = {
+            id: Date.now().toString(),
+            content: "I'm here to help! While I'm having trouble connecting to some services, I can still assist you with finding events, analyzing resumes, and other tasks. What would you like to know?",
+            role: "assistant",
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, errorMessage])
+        }
       }
-  
-      setMessages((prev) => [...prev, errorMessage])
     } finally {
       setIsTyping(false)
     }
@@ -195,6 +269,12 @@ export default function Home() {
   const handleSmartChipClick = (action: string, message: string) => {
     const timestamp = Date.now()
     
+    // Handle chat messages directly
+    if (action === "chat_message") {
+      handleSendMessage(message);
+      return;
+    }
+
     // Add user message
     const userMessage: Message = {
       id: `user-${timestamp}`,
@@ -275,6 +355,14 @@ export default function Home() {
         response = {
           id: `assistant-${timestamp}`,
           content: <ResumeFeedback onUploadResume={(message: Message) => setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(timestamp + 1),
+        }
+        break
+      case "find_event":
+        response = {
+          id: `assistant-${timestamp}`,
+          content: <EventsComponent onSearch={(message) => setMessages((prev) => [...prev, message])} />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }

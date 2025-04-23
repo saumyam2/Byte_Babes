@@ -30,14 +30,15 @@ const SMART_CHIPS: SmartChip[] = [
     action: "cold_email",
     message: "I'd like help writing a cold email to potential employers."
   },
-  // {
-  //   id: "mentor",
-  //   label: "Mentorship match",
-  //   icon: "👩‍💼",
-  //   color: "#FFE4EC",
-  //   action: "mentor_match",
-  //   message: "I'm looking for a mentor in my field."
-  // },
+  {
+    id: "events",
+    label: "Find events",
+    icon: "🎉",
+    color: "#D2B6E2",
+    action: "chat_message",
+    message: "Show me upcoming tech events in my area"
+  },
+  
   {
     id: "skill",
     label: "Skill gap analysis",
