@@ -30,20 +30,20 @@ const SMART_CHIPS: SmartChip[] = [
     action: "cold_email",
     message: "I'd like help writing a cold email to potential employers."
   },
+  // {
+  //   id: "mentor",
+  //   label: "Mentorship match",
+  //   icon: "👩‍💼",
+  //   color: "#FFE4EC",
+  //   action: "mentor_match",
+  //   message: "I'm looking for a mentor in my field."
+  // },
   {
-    id: "mentor",
-    label: "Mentorship match",
-    icon: "👩‍💼",
-    color: "#FFE4EC",
-    action: "mentor_match",
-    message: "I'm looking for a mentor in my field."
-  },
-  {
-    id: "resume",
-    label: "Resume feedback",
+    id: "skill",
+    label: "Skill gap analysis",
     icon: "🧑‍💻",
     color: "#DCF1F9",
-    action: "resume_feedback",
+    action: "skill_gap_analysis",
     message: "I need feedback on my resume to improve it."
   },
   {
@@ -61,6 +61,15 @@ const SMART_CHIPS: SmartChip[] = [
     color: "#FFE4EC",
     action: "success_stories",
     message: "I'd like to read some career success stories for inspiration."
+  },
+  {
+    id: "resume",
+    label: "Resume feedback",
+    icon: "📝",
+    color: "#FFE4EC",
+    action: "resume_feedback",
+    message: "I'd like feedback on my resume to improve it."
+    
   }
 ]
 

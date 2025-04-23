@@ -7,6 +7,15 @@ import { JobCards } from "./JobCards"
 // API base URL
 const API_BASE_URL = "http://localhost:8086"
 
+// First, add a type for the job search parameters
+interface JobSearchParams {
+  skills: string[];
+  titles: string[];
+  location: string;
+  remote: boolean;
+  days: number;
+}
+
 interface JobSearchProps {
   onSearch: (message: Message) => void
 }
@@ -21,100 +30,100 @@ export function JobSearch({ onSearch }: JobSearchProps) {
   const [jobs, setJobs] = useState<any[]>([])
 
   const handleSearch = async () => {
-    if (!role) {
-      alert("Please enter a job role")
+    if (!role && !skills) {
+      setError("Please enter either a job role or skills")
       return
     }
 
     setIsLoading(true)
     setError(null)
-    setJobs([]) // Clear previous results
-
-    const searchMessage: Message = {
-      id: `user-${Date.now()}`,
-      content: `Searching for ${role} jobs${location ? ` in ${location}` : ""}${experience ? ` with ${experience} experience` : ""}${skills ? ` requiring ${skills}` : ""}`,
-      role: "user",
-      timestamp: new Date(),
-    }
-    onSearch(searchMessage)
+    setJobs([])
 
     try {
-      // Format skills as array
-      const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
+      // Format and clean search parameters
+      const skillsArray = skills
+        ? skills.split(",")
+            .map(s => s.trim().toLowerCase())
+            .filter(s => s.length > 2) // Ignore very short terms
+        : []
       
-      // Format titles as array - ensure it's not empty
-      const titlesArray = role.split(",").map(t => t.trim()).filter(Boolean)
-      if (titlesArray.length === 0) {
-        titlesArray.push(role.trim())
-      }
+      const titlesArray = role
+        ? role.split(",")
+            .map(t => t.trim().toLowerCase())
+            .filter(t => t.length > 2)
+            .map(t => t.replace(/developer/gi, '')) // Remove common terms to broaden search
+        : []
 
-      const requestBody = {
-        skills: skillsArray,
-        titles: titlesArray,
-        location: location || "IN",
+      // Use more inclusive search parameters
+      const requestBody: JobSearchParams = {
+        skills: skillsArray.length > 0 ? skillsArray : [],
+        titles: titlesArray.length > 0 ? titlesArray : ["developer", "engineer"], // Default to common titles
+        location: location?.trim() || "IN",
         remote: true,
-        days: 14
+        days: 30 // Increase search window
       }
 
-      console.log("Making API request to:", `${API_BASE_URL}/jobs/search`)
-      console.log("Request body:", requestBody)
+      console.log("Search parameters:", {
+        skillsCount: requestBody.skills.length,
+        titlesCount: requestBody.titles.length,
+        skills: requestBody.skills,
+        titles: requestBody.titles,
+        location: requestBody.location,
+        days: requestBody.days
+      })
 
       const response = await fetch(`${API_BASE_URL}/jobs/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
         },
         body: JSON.stringify(requestBody),
       })
 
-      console.log("Response status:", response.status)
       const data = await response.json()
-      console.log("Response data:", data)
+      console.log("Raw API response:", data)
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch jobs: ${data.message || response.statusText}`)
+        throw new Error(`Search failed: ${data.message || response.statusText}`)
       }
-      
-      if (data.success && Array.isArray(data.data)) {
-        // Transform job data to match JobCards interface
+
+      if (data.success) {
+        if (!Array.isArray(data.data)) {
+          console.error("Expected data.data to be an array, got:", typeof data.data)
+          throw new Error("Invalid response format from server")
+        }
+
+        if (data.data.length === 0) {
+          setError("No jobs found matching your criteria. Try broadening your search.")
+          return
+        }
+
+        // Transform job data
         const formattedJobs = data.data.map((job: any) => ({
-          id: job.id.toString(),
-          title: job.job_title,
-          company: job.company,
-          location: job.remote ? "Remote" : job.location,
-          salary: job.salary_string || "Salary not specified",
-          description: job.description,
-          posted: new Date(job.date_posted).toLocaleDateString(),
-          logo: job.company_object?.logo || "",
+          id: job.id?.toString() || String(Math.random()),
+          title: job.job_title || job.title || role,
+          company: job.company || "Company not specified",
+          location: job.remote ? "Remote" : (job.location || "Location not specified"),
+          salary: job.salary_string || 
+                 (job.min_annual_salary ? `${job.min_annual_salary} - ${job.max_annual_salary} per year` : 
+                 "Salary not specified"),
+          description: job.description?.replace(/\*\*/g, '') || "No description available",
+          posted: job.date_posted ? new Date(job.date_posted).toLocaleDateString() : "Recently posted",
+          logo: job.company_object?.logo || 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company || 'Company')}&background=random`,
           url: job.url || job.source_url || null
         }))
-        
-        console.log("Formatted jobs:", formattedJobs)
-        setJobs(formattedJobs)
 
-        const resultsMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          content: `Found ${formattedJobs.length} matching jobs`,
-          role: "assistant",
-          timestamp: new Date(),
-        }
-        onSearch(resultsMessage)
-      } else {
-        console.error("Invalid response format:", data)
-        throw new Error(data.message || "No jobs found or invalid response format")
+        console.log(`Found ${formattedJobs.length} jobs after formatting`)
+        setJobs(formattedJobs)
       }
     } catch (err) {
-      console.error("Search error:", err)
-      const errorMessage = err instanceof Error ? err.message : "An error occurred while searching for jobs"
-      setError(errorMessage)
-      const errorMsg: Message = {
-        id: `assistant-${Date.now()}`,
-        content: `Error: ${errorMessage}`,
-        role: "assistant",
-        timestamp: new Date(),
-      }
-      onSearch(errorMsg)
+      console.error("Search error details:", err)
+      setError(
+        err instanceof Error 
+          ? `Search failed: ${err.message}. Try using broader terms or fewer filters.`
+          : "Failed to fetch jobs. Please try again."
+      )
     } finally {
       setIsLoading(false)
     }
@@ -199,4 +208,4 @@ export function JobSearch({ onSearch }: JobSearchProps) {
       )}
     </div>
   )
-} 
+}

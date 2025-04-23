@@ -10,14 +10,15 @@ import { MentorProfiles } from "@/components/MentorProfiles"
 import { ChatInput } from "@/components/ChatInput"
 import { SmartSuggestionChips } from "@/components/SmartSuggestionChips"
 import { LeftPane } from "@/components/LeftPane"
-import { CareerRoadmap } from "@/components/CareerRoadmap"
+import { CareerPathwayComponent } from "@/components/CareerRoadmap"
 import { SuccessStories } from "@/components/SuccessStories"
-import { SkillGapAnalysis } from "@/components/ResumeFeedback"
-import { ColdEmailTemplate } from "@/components/ColdEmailTemplate"
+import { SkillGapAnalysisComponent } from "@/components/SkillGapAnalysis"
+import { LinkedInMessageGenerator } from "@/components/ColdEmailTemplate"
 import { useMediaQuery } from "../../../hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { Message } from "@/types"
 import { JobSearch } from "@/components/JobSearch"
+import ResumeFeedback from "@/components/ResumeFeedback"
 
 // Types
 type SuggestionChip = {
@@ -77,11 +78,11 @@ export default function Home() {
 
   const suggestionChips: SuggestionChip[] = [
     { id: "job_search", label: "Search Jobs", icon: "🔍", color: "#D2B6E2" },
-    { id: "resume", label: "Build Resume", icon: "📄", color: "#FFE4EC" },
+    { id: "skill", label: "Build Resume", icon: "📄", color: "#FFE4EC" },
     { id: "jobs", label: "Find Jobs", icon: "🚀", color: "#DCF1F9" },
     { id: "mentor", label: "Find Mentor", icon: "🤝", color: "#D2B6E2" },
     { id: "interview", label: "Mock Interview", icon: "🎤", color: "#FFE4EC" },
-    { id: "skills", label: "Skill Gap Analysis", icon: "📊", color: "#DCF1F9" },
+    { id: "resume", label: "Resume feedback", icon: "📝", color: "#DCF1F9" },
   ]
 
   const jobListings: JobListing[] = [
@@ -168,13 +169,13 @@ export default function Home() {
     try {
       // Call your backend
       const response = await chatApi.sendMessage(message)
-  
-      const botMessage: Message = {
-        id: Date.now().toString(),
-        content: response.reply || "Sorry, I didn't quite get that!",
-        role: "assistant",
-        timestamp: new Date(),
-      }
+  console.log('API Response:', response)
+  const botMessage: Message = {
+    id: Date.now().toString(),
+    content: response.botResponse || "Sorry, I didn't quite get that!", // Changed from response.reply
+    role: "assistant",
+    timestamp: new Date(),
+  }
   
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
@@ -218,7 +219,7 @@ export default function Home() {
       case "cold_email":
         response = {
           id: `assistant-${timestamp}`,
-          content: <ColdEmailTemplate />,
+          content: <LinkedInMessageGenerator />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }
@@ -243,10 +244,10 @@ export default function Home() {
         }
         break
 
-      case "resume_feedback":
+      case "skill_gap_analysis":
         response = {
           id: `assistant-${timestamp}`,
-          content: <SkillGapAnalysis onUploadResume={(message: Message) => setMessages((prev) => [...prev, message])} />,
+          content: <SkillGapAnalysisComponent onUploadResume={(message: Message) => setMessages((prev) => [...prev, message])} />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }
@@ -255,7 +256,7 @@ export default function Home() {
       case "career_roadmap":
         response = {
           id: `assistant-${timestamp}`,
-          content: <CareerRoadmap onGenerateRoadmap={(message) => setMessages((prev) => [...prev, message])} />,
+          content: <CareerPathwayComponent onGeneratePathway={(message: Message) => setMessages((prev) => [...prev, message])} />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }
@@ -270,6 +271,14 @@ export default function Home() {
         }
         break
 
+      case "resume_feedback":
+        response = {
+          id: `assistant-${timestamp}`,
+          content: <ResumeFeedback onUploadResume={(message: Message) => setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(timestamp + 1),
+        }
+        break
       default:
         response = {
           id: `assistant-${timestamp}`,

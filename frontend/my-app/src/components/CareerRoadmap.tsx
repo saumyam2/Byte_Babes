@@ -1,222 +1,306 @@
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useState } from "react"
-import { Message } from "@/types"
+import { JSX, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Message } from "@/types";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
-interface CareerRoadmapProps {
-  onGenerateRoadmap: (message: Message) => void
-}
+// Service function to communicate with the backend
+const generateCareerPathway = async (
+  currentRole: string,
+  dreamRole: string,
+  timeFrameYears: number,
+  targetIndustry: string,
+  targetCompanies: string[]
+) => {
+  const response = await fetch('http://127.0.0.1:8000/generate-career-pathway/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      current_role: currentRole,
+      dream_role: dreamRole,
+      time_frame_years: timeFrameYears,
+      target_industry: targetIndustry,
+      target_companies: targetCompanies
+    }),
+  });
 
-export function CareerRoadmap({ onGenerateRoadmap }: CareerRoadmapProps) {
-  const [selectedTimeline, setSelectedTimeline] = useState<string | null>(null)
-  const [currentRole, setCurrentRole] = useState("")
-  const [targetRole, setTargetRole] = useState("")
-
-  const handleGenerateRoadmap = () => {
-    if (!currentRole || !targetRole) {
-      alert("Please fill in both current and target roles")
-      return
-    }
-
-    const timelineText = selectedTimeline === "6" ? "6 months" : 
-                        selectedTimeline === "12" ? "12 months" : "24 months"
-
-    const roadmapMessage: Message = {
-      id: `assistant-${Date.now()}`,
-      content: (
-        <div className="space-y-4">
-          <p>Here's your personalized roadmap to become a {targetRole} in {timelineText}:</p>
-          <Card className="p-4">
-            <div className="space-y-6">
-              {selectedTimeline === "6" && (
-                <>
-                  {/* Month 1-2 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Months 1-2: Foundation Building</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Complete advanced product management certification</li>
-                      <li>Master data analytics tools (SQL, Tableau)</li>
-                      <li>Build a portfolio of 2-3 case studies</li>
-                      <li>Network with 5 senior PMs in your target industry</li>
-                    </ul>
-                  </div>
-
-                  {/* Month 3-4 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Months 3-4: Skill Enhancement</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Lead a cross-functional project</li>
-                      <li>Develop expertise in agile methodologies</li>
-                      <li>Create a product strategy document</li>
-                      <li>Attend 2 industry conferences</li>
-                    </ul>
-                  </div>
-
-                  {/* Month 5-6 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Months 5-6: Leadership & Application</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Mentor a junior PM</li>
-                      <li>Publish 2 thought leadership articles</li>
-                      <li>Update resume and LinkedIn profile</li>
-                      <li>Start applying for senior roles</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-
-              {selectedTimeline === "12" && (
-                <>
-                  {/* Quarter 1 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Quarter 1: Foundation Building</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Complete product management certification</li>
-                      <li>Learn basic data analytics</li>
-                      <li>Build first case study</li>
-                      <li>Start networking with PMs</li>
-                    </ul>
-                  </div>
-
-                  {/* Quarter 2 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Quarter 2: Skill Development</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Work on cross-functional projects</li>
-                      <li>Learn agile methodologies</li>
-                      <li>Create product documentation</li>
-                      <li>Attend industry events</li>
-                    </ul>
-                  </div>
-
-                  {/* Quarter 3 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Quarter 3: Advanced Skills</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Lead a small team</li>
-                      <li>Develop strategic thinking</li>
-                      <li>Create product strategy</li>
-                      <li>Build professional network</li>
-                    </ul>
-                  </div>
-
-                  {/* Quarter 4 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Quarter 4: Leadership & Application</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Mentor junior team members</li>
-                      <li>Publish thought leadership</li>
-                      <li>Update professional profiles</li>
-                      <li>Start job applications</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-
-              {selectedTimeline === "24" && (
-                <>
-                  {/* Year 1 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Year 1: Foundation & Growth</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Complete comprehensive PM training</li>
-                      <li>Build strong technical foundation</li>
-                      <li>Develop core PM skills</li>
-                      <li>Create portfolio of work</li>
-                      <li>Establish professional network</li>
-                    </ul>
-                  </div>
-
-                  {/* Year 2 */}
-                  <div>
-                    <h3 className="font-medium mb-2">Year 2: Leadership & Mastery</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Lead complex projects</li>
-                      <li>Develop strategic vision</li>
-                      <li>Build leadership skills</li>
-                      <li>Create industry presence</li>
-                      <li>Prepare for senior role transition</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">Save Roadmap</Button>
-                <Button size="sm">Share with Mentor</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      ),
-      role: "assistant",
-      timestamp: new Date(),
-    }
-    onGenerateRoadmap(roadmapMessage)
+  if (!response.ok) {
+    throw new Error('Failed to generate career pathway');
   }
 
+  return response.json();
+};
+
+interface CareerPathwayProps {
+  onGeneratePathway?: (message: Message) => void;
+}
+
+export function CareerPathwayComponent({ onGeneratePathway }: CareerPathwayProps) {
+  const [currentRole, setCurrentRole] = useState("");
+  const [dreamRole, setDreamRole] = useState("");
+  const [timeFrameYears, setTimeFrameYears] = useState<number>(2);
+  const [targetIndustry, setTargetIndustry] = useState("");
+  const [targetCompanies, setTargetCompanies] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pathwayData, setPathwayData] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["year1", "year2"]);
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => {
+      if (prev.includes(section)) {
+        return prev.filter(s => s !== section);
+      } else {
+        return [...prev, section];
+      }
+    });
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    if (!currentRole || !dreamRole || !targetIndustry) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const companies = targetCompanies.split(',')
+        .map(company => company.trim())
+        .filter(company => company !== "");
+      
+      const pathwayResponse = await generateCareerPathway(
+        currentRole,
+        dreamRole,
+        timeFrameYears,
+        targetIndustry,
+        companies
+      );
+      
+      setPathwayData(pathwayResponse.career_pathway);
+      
+      // If onGeneratePathway callback exists, call it with a message
+      if (onGeneratePathway) {
+        onGeneratePathway({ 
+          id: Date.now().toString(), 
+          content: `Generated career pathway from ${currentRole} to ${dreamRole}`, 
+          role: "user", 
+          timestamp: new Date() 
+        });
+      }
+    } catch (err) {
+      setError('Failed to generate career pathway. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderPathwayContent = () => {
+    if (!pathwayData) return null;
+
+    const paragraphs = pathwayData.split('\n\n');
+    let processedContent: JSX.Element[] = [];
+
+    const createYearSection = (yearNum: string) => (
+      <div key={`year${yearNum}-heading`} className="mt-4">
+        <div 
+          className="flex items-center justify-between cursor-pointer bg-blue-50 p-3 rounded"
+          onClick={() => toggleSection(`year${yearNum}`)}
+        >
+          <h3 className="text-lg font-semibold">Year {yearNum}</h3>
+          <Button variant="ghost" size="sm">
+            {expandedSections.includes(`year${yearNum}`) ? 
+              <ChevronUp className="h-5 w-5" /> : 
+              <ChevronDown className="h-5 w-5" />
+            }
+          </Button>
+        </div>
+        {expandedSections.includes(`year${yearNum}`) && (
+          <div className="pl-4 pt-2">
+            <div className="space-y-4"></div>
+          </div>
+        )}
+      </div>
+    );
+
+    const addContentToYear = (yearSection: JSX.Element, content: JSX.Element) => {
+      const children = yearSection.props.children;
+      const expandedContent = children[1];
+      
+      if (!expandedContent || !expandedContent.props || !expandedContent.props.children) {
+        return yearSection;
+      }
+
+      return {
+        ...yearSection,
+        props: {
+          ...yearSection.props,
+          children: [
+            children[0],
+            {
+              ...expandedContent,
+              props: {
+                ...expandedContent.props,
+                children: {
+                  ...expandedContent.props.children,
+                  props: {
+                    ...expandedContent.props.children.props,
+                    children: [
+                      ...(expandedContent.props.children.props.children || []),
+                      content
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      };
+    };
+
+    for (let i = 0; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+      
+      if (paragraph.startsWith('**Year 1:**')) {
+        processedContent.push(createYearSection('1'));
+      } else if (paragraph.startsWith('**Year 2:**')) {
+        processedContent.push(createYearSection('2'));
+      } else if (paragraph.startsWith('**Skills')) {
+        const currentYear = processedContent.length > 0 && 
+                           processedContent[processedContent.length - 1].key === 'year2-heading' ? 
+                           'year2' : 'year1';
+        
+        if (expandedSections.includes(currentYear)) {
+          const content = (
+            <div key={`${currentYear}-skills`} className="mt-3 mb-4">
+              <h4 className="font-medium mb-2">Skills to learn:</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                {paragraphs[i+1]?.split('\n').map((item, idx) => (
+                  <li key={idx}>{item.replace(/^\d+\.\s*\*\*|\*\*:\s*/, '').replace(/\*\*/g, '')}</li>
+                ))}
+              </ul>
+            </div>
+          );
+
+          const lastIndex = processedContent.length - 1;
+          if (lastIndex >= 0) {
+            processedContent[lastIndex] = addContentToYear(processedContent[lastIndex], content);
+          }
+          i++;
+        }
+      }
+      // ... handle other sections similarly ...
+    }
+
+    return processedContent;
+  };
+
   return (
-    <div className="space-y-4">
-      <p>Let's create your personalized career roadmap! First, tell me:</p>
-      <Card className="p-4">
-        <div className="space-y-4">
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h2 className="text-xl font-bold mb-4">Career Pathway Generator</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Your current role</label>
-            <input 
-              className="w-full p-2 border rounded" 
-              placeholder="e.g., Junior Product Manager"
+            <label className="block mb-2 font-medium">Current Role</label>
+            <Input
               value={currentRole}
               onChange={(e) => setCurrentRole(e.target.value)}
+              placeholder="e.g., Junior Software Engineer"
+              className="w-full"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Target role</label>
-            <input 
-              className="w-full p-2 border rounded" 
-              placeholder="e.g., Senior Product Manager"
-              value={targetRole}
-              onChange={(e) => setTargetRole(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Timeline</label>
-            <div className="flex gap-2">
-              <Button 
-                variant={selectedTimeline === "6" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedTimeline("6")}
-              >
-                6 months
-              </Button>
-              <Button 
-                variant={selectedTimeline === "12" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedTimeline("12")}
-              >
-                1 year
-              </Button>
-              <Button 
-                variant={selectedTimeline === "24" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedTimeline("24")}
-              >
-                2 years
-              </Button>
-            </div>
-          </div>
-          {selectedTimeline && (
-            <div className="pt-4">
-              <Button 
-                className="w-full"
-                onClick={handleGenerateRoadmap}
-              >
-                Generate Roadmap
-              </Button>
-            </div>
-          )}
-        </div>
-      </Card>
-    </div>
-  )
-} 
 
+          <div>
+            <label className="block mb-2 font-medium">Dream Role</label>
+            <Input
+              value={dreamRole}
+              onChange={(e) => setDreamRole(e.target.value)}
+              placeholder="e.g., AI Research Scientist"
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">Timeline (Years)</label>
+            <div className="flex space-x-4">
+              <Button 
+                type="button" 
+                onClick={() => setTimeFrameYears(1)} 
+                variant={timeFrameYears === 1 ? "default" : "outline"}
+                size="sm"
+              >
+                1 Year
+              </Button>
+              <Button 
+                type="button" 
+                onClick={() => setTimeFrameYears(2)} 
+                variant={timeFrameYears === 2 ? "default" : "outline"}
+                size="sm"
+              >
+                2 Years
+              </Button>
+              <Button 
+                type="button" 
+                onClick={() => setTimeFrameYears(5)} 
+                variant={timeFrameYears === 5 ? "default" : "outline"}
+                size="sm"
+              >
+                5 Years
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">Target Industry</label>
+            <Input
+              value={targetIndustry}
+              onChange={(e) => setTargetIndustry(e.target.value)}
+              placeholder="e.g., Artificial Intelligence"
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">Target Companies (comma-separated)</label>
+            <Input
+              value={targetCompanies}
+              onChange={(e) => setTargetCompanies(e.target.value)}
+              placeholder="e.g., OpenAI, Google, Microsoft"
+              className="w-full"
+            />
+          </div>
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? 'Generating...' : 'Generate Career Pathway'}
+          </Button>
+        </form>
+      </Card>
+
+      {error && (
+        <div className="text-red-500 p-4 bg-red-50 rounded">
+          {error}
+        </div>
+      )}
+
+      {pathwayData && (
+        <Card className="p-6">
+          <h2 className="text-xl font-bold mb-4">Your Career Pathway</h2>
+          <div className="space-y-2">
+            {renderPathwayContent()}
+          </div>
+          <div className="mt-6 flex gap-2">
+            <Button variant="outline" size="sm">Save Pathway</Button>
+            <Button size="sm">Share with Mentor</Button>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
