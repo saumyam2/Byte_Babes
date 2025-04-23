@@ -20,7 +20,7 @@ import { Message } from "@/types"
 import { JobSearch } from "@/components/JobSearch"
 import ResumeFeedback from "@/components/ResumeFeedback"
 import EventsComponent from "@/components/EventsDetail";
-import { Clock, MapPin, ExternalLink } from "lucide-react"
+import { Clock, MapPin, ExternalLink, Briefcase } from "lucide-react"
 
 // Types
 type SuggestionChip = {
@@ -156,115 +156,210 @@ export default function Home() {
   ]
 
   const handleSendMessage = async (message: string, file?: File) => {
-    if (!message.trim() && !file) return
+    if (!message.trim() && !file) return;
   
     const newUserMessage: Message = {
       id: Date.now().toString(),
       content: message,
       role: "user",
       timestamp: new Date(),
-    }
+    };
   
-    setMessages((prev) => [...prev, newUserMessage])
-    setIsTyping(true)
+    setMessages((prev) => [...prev, newUserMessage]);
+    setIsTyping(true);
   
     try {
-      // Check if it's an event-related query
-      if (message.toLowerCase().includes('event') || message.toLowerCase().includes('meetup') || message.toLowerCase().includes('conference')) {
+      // Event-related query
+      if (
+        message.toLowerCase().includes("event") ||
+        message.toLowerCase().includes("meetup") ||
+        message.toLowerCase().includes("conference")
+      ) {
         try {
-          // Call events API
-          const response = await axios.post('http://localhost:8086/events/getevents', {
-            q: message
+          const response = await axios.post("http://localhost:8086/events/getevents", {
+            q: message,
           });
-
+  
           if (response.data.success) {
             const events = response.data.data;
             const botMessage: Message = {
               id: Date.now().toString(),
-              content: <div className="space-y-4">
-                <p>Here are some events that might interest you:</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {events.map((event: any, index: number) => (
-                    <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
-                      {event.thumbnail && (
-                        <div className="relative h-48 overflow-hidden bg-gray-200">
-                          <img 
-                            src={event.thumbnail} 
-                            alt={event.title} 
-                            className="w-full h-full object-cover"
-                          />
+              content: (
+                <div className="space-y-4">
+                  <p>Here are some events that might interest you:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {events.map((event: any, index: number) => (
+                      <div
+                        key={index}
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                      >
+                        {event.thumbnail && (
+                          <div className="relative h-48 overflow-hidden bg-gray-200">
+                            <img
+                              src={event.thumbnail}
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-semibold mb-2">{event.title}</h3>
+                          {event.date?.when && (
+                            <p className="text-sm text-gray-600 mb-2">
+                              <Clock className="inline-block w-4 h-4 mr-1" />
+                              {event.date.when}
+                            </p>
+                          )}
+                          {event.venue?.name && (
+                            <p className="text-sm text-gray-600">
+                              <MapPin className="inline-block w-4 h-4 mr-1" />
+                              {event.venue.name}
+                            </p>
+                          )}
+                          {event.link && (
+                            <a
+                              href={event.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800"
+                            >
+                              Learn more <ExternalLink className="w-4 h-4 ml-1" />
+                            </a>
+                          )}
                         </div>
-                      )}
-                      <div className="p-4">
-                        <h3 className="font-semibold mb-2">{event.title}</h3>
-                        {event.date?.when && (
-                          <p className="text-sm text-gray-600 mb-2">
-                            <Clock className="inline-block w-4 h-4 mr-1" />
-                            {event.date.when}
-                          </p>
-                        )}
-                        {event.venue?.name && (
-                          <p className="text-sm text-gray-600">
-                            <MapPin className="inline-block w-4 h-4 mr-1" />
-                            {event.venue.name}
-                          </p>
-                        )}
-                        {event.link && (
-                          <a 
-                            href={event.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800"
-                          >
-                            Learn more <ExternalLink className="w-4 h-4 ml-1" />
-                          </a>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>,
+              ),
               role: "assistant",
               timestamp: new Date(),
-            }
-            setMessages((prev) => [...prev, botMessage])
+            };
+            setMessages((prev) => [...prev, botMessage]);
           } else {
             throw new Error("Failed to fetch events");
           }
         } catch (error) {
           const errorMessage: Message = {
             id: Date.now().toString(),
-            content: "I apologize, but I couldn't fetch the events at the moment. Please try again later.",
+            content:
+              "I apologize, but I couldn't fetch the events at the moment. Please try again later.",
             role: "assistant",
             timestamp: new Date(),
-          }
-          setMessages((prev) => [...prev, errorMessage])
+          };
+          setMessages((prev) => [...prev, errorMessage]);
         }
-      } else {
+      }
+  
+      // LinkedIn/mentor search
+      else if (
+        message.toLowerCase().includes("linkedin") ||
+        message.toLowerCase().includes("mentor") ||
+        message.toLowerCase().includes("profile")
+      ) {
         try {
-          // Handle other types of messages
-          const response = await chatApi.sendMessage(message)
+          const response = await axios.post("http://localhost:8086/mentors/search", {
+            keywords: message,
+          });
+  
+          const profiles = response.data.data?.response;
+  
+          if (response.data.success && Array.isArray(profiles)) {
+            const botMessage: Message = {
+              id: Date.now().toString(),
+              content: (
+                <div className="space-y-4">
+                  <p>Here are some LinkedIn profiles that might be relevant:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {profiles.map((profile: any, index: number) => (
+                      <div
+                        key={index}
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                      >
+                        <div className="flex p-4">
+                          {profile.profilePicture && (
+                            <div className="mr-4">
+                              <img
+                                src={profile.profilePicture}
+                                alt={profile.fullName}
+                                className="w-16 h-16 rounded-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-semibold mb-1">{profile.fullName}</h3>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {profile.primarySubtitle}
+                            </p>
+                            {profile.secondarySubtitle && (
+                              <p className="text-sm text-gray-600">
+                                <MapPin className="inline-block w-4 h-4 mr-1" />
+                                {profile.secondarySubtitle}
+                              </p>
+                            )}
+                            {profile.navigationUrl && (
+                              <a
+                                href={profile.navigationUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800"
+                              >
+                                View profile <ExternalLink className="w-4 h-4 ml-1" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ),
+              role: "assistant",
+              timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, botMessage]);
+          } else {
+            throw new Error("Invalid LinkedIn response");
+          }
+        } catch (error) {
+          console.error("LinkedIn search error:", error);
+          const errorMessage: Message = {
+            id: Date.now().toString(),
+            content:
+              "I apologize, but I couldn't fetch LinkedIn profiles at the moment. Please try again later.",
+            role: "assistant",
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+        }
+      }
+  
+      // Other messages
+      else {
+        try {
+          const response = await chatApi.sendMessage(message);
           const botMessage: Message = {
             id: Date.now().toString(),
             content: response.botResponse || "Sorry, I didn't quite get that!",
             role: "assistant",
             timestamp: new Date(),
-          }
-          setMessages((prev) => [...prev, botMessage])
+          };
+          setMessages((prev) => [...prev, botMessage]);
         } catch (error) {
           const errorMessage: Message = {
             id: Date.now().toString(),
-            content: "I'm here to help! While I'm having trouble connecting to some services, I can still assist you with finding events, analyzing resumes, and other tasks. What would you like to know?",
+            content:
+              "I'm here to help! While I'm having trouble connecting to some services, I can still assist you with finding events, analyzing resumes, and other tasks. What would you like to know?",
             role: "assistant",
             timestamp: new Date(),
-          }
-          setMessages((prev) => [...prev, errorMessage])
+          };
+          setMessages((prev) => [...prev, errorMessage]);
         }
       }
     } finally {
-      setIsTyping(false)
+      setIsTyping(false);
     }
-  }
+  };
   
   const handleSmartChipClick = (action: string, message: string) => {
     const timestamp = Date.now()
