@@ -36,4 +36,7 @@ app.use('/jobs',jobsRouter)
 const eventsRouter = require('./routes/getevents')
 app.use('/events',eventsRouter)
 
+const mentorsRouter = require('./routes/fetchmentors')
+app.use('/mentors',mentorsRouter)
+
 module.exports=app
