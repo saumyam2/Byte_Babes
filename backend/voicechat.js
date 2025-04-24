@@ -1,7 +1,7 @@
 const express = require("express");
 const { exec } = require("child_process");
 const fs = require("fs").promises;
-const voice = require("elevenlabs-node");
+const ElevenLabs = require("elevenlabs-node");
 const { Groq } = require("groq-sdk");
 
 require("dotenv").config();
@@ -10,6 +10,11 @@ const router = express.Router();
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 const voiceID = "9BWtsMINqrJLrRacOk9x";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// Initialize ElevenLabs with API key
+const voice = new ElevenLabs({
+  apiKey: elevenLabsApiKey,
+});
 
 const execCommand = (command) => {
   return new Promise((resolve, reject) => {
@@ -89,7 +94,15 @@ router.post("/voice", async (req, res) => {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       const fileName = `audios/message_${i}.mp3`;
-      await voice.textToSpeech(elevenLabsApiKey, voiceID, fileName, message.text);
+      
+      // Use the correct method call for text-to-speech
+      await voice.textToSpeech({
+        textInput: message.text,
+        fileName: fileName,
+        voiceId: voiceID,
+        modelId: "eleven_multilingual_v2"
+      });
+
       await lipSyncMessage(i);
       message.audio = await audioFileToBase64(fileName);
       message.lipsync = await readJsonTranscript(`audios/message_${i}.json`);
