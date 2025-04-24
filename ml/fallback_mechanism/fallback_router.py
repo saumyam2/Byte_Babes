@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from langdetect import detect
-from fallback_mechanism.fallback_client import call_groq_model
+from fallback_client import call_groq_model
 
 router = APIRouter()
 
@@ -17,7 +17,10 @@ def chat_answer(user_input: UserInput):
         1. Two alternative suggestions
         2. A helpful next step
 
-        Format the answer clearly using numbered points or bullet points."""
+        Format the answer clearly using numbered points or bullet points.
+        
+        Always respond in the language of the user's message.
+        """
     
     reply = call_groq_model(prompt, user_lang=user_lang)
     return {"response": reply}
@@ -30,7 +33,9 @@ def chat_not_satisfied(user_input: UserInput):
         Reply with:
         - A polite apology
         - Offer to connect with human support
-        - (Optional) ask a clarifying question to try and help further
+        - (Optional) ask a clarifying question to try and help further'
+
+        Always respond in the language of the user's message.
     """
     reply = call_groq_model(prompt, user_lang=user_lang)
     return {"response": reply} 
