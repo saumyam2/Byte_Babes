@@ -19,8 +19,9 @@ import { Button } from "@/components/ui/button"
 import { Message } from "@/types"
 import { JobSearch } from "@/components/JobSearch"
 import ResumeFeedback from "@/components/ResumeFeedback"
-import EventsComponent from "@/components/EventsDetail";
-import { Clock, MapPin, ExternalLink, Briefcase } from "lucide-react"
+import EventsComponent from "@/components/EventsDetail"
+import { Clock, MapPin, ExternalLink, Briefcase, Box } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // Types
 type SuggestionChip = {
@@ -63,6 +64,7 @@ type MentorProfile = {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -499,6 +501,17 @@ export default function Home() {
       )}
       <div className={`flex-1 flex flex-col ${showLeftPane ? 'ml-80' : ''}`}>
         <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="p-4 border-b flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={() => router.push('/3D-chatbot')}
+            >
+              <Box className="w-4 h-4" />
+              Switch to 3D Chat
+            </Button>
+          </div>
           <div className="flex-1 overflow-y-auto">
             <MessageList messages={messages} />
           </div>
