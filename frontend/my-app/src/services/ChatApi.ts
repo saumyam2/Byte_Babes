@@ -28,7 +28,6 @@ export class ChatApi {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({ message }),
       });
 
@@ -58,7 +57,6 @@ export class ChatApi {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        credentials: 'include',
         body: formData,
       });
 
@@ -78,26 +76,24 @@ export class ChatApi {
   }
 
   async submitFeedback(feedbackId: string, feedback: { category?: string, details?: string }): Promise<void> {
-    const endpoint = `${this.baseUrl}/feedback`;
-    console.log('Submitting feedback to endpoint:', endpoint);
-
+    const endpoint = `${this.baseUrl}/chatbot/feedback/${feedbackId}`; // 👈 updated path
+  
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'feedback-id': feedbackId,
         },
-        credentials: 'include',
-        body: JSON.stringify(feedback),
+        body: JSON.stringify({
+          message: feedback.details,
+          category: feedback.category
+        }),
       });
-
+  
       if (!response.ok) {
-        const error = new Error(`Feedback submission failed! status: ${response.status}`) as ChatError;
-        error.status = response.status;
-        error.statusText = response.statusText;
-        throw error;
+        console.error('Feedback submission failed:', await response.text());
+        throw new Error(`Feedback submission failed! status: ${response.status}`);
       }
     } catch (error) {
       console.error('Feedback Submission Error:', error);

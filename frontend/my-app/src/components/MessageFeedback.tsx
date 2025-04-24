@@ -1,121 +1,128 @@
 import { useState } from 'react';
-import { ThumbsUp, ThumbsDown, AlertCircle } from 'lucide-react';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { chatApi } from '@/services/ChatApi';
+import { notSatisfiedApi } from '@/services/NotSatisfiedApi';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface MessageFeedbackProps {
   messageId: string;
+  userMessage: string;  // the text the user just sent
 }
 
-export function MessageFeedback({ messageId }: MessageFeedbackProps) {
+export function MessageFeedback({
+  messageId,
+  userMessage,
+}: MessageFeedbackProps) {
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [showDetailForm, setShowDetailForm] = useState(false);
-  const [feedbackCategory, setFeedbackCategory] = useState<'inaccuarte' | 'biased' | 'irrelevant' | null>(null);
-  const [details, setDetails] = useState('');
+  const [botReply, setBotReply] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
 
-  const handleFeedback = async (isPositive: boolean) => {
-    if (isPositive) {
-      setFeedbackSubmitted(true);
+  const handlePositiveFeedback = () => {
+    console.log('Positive feedback for', messageId);
+    setFeedbackSubmitted(true);
+  };
+
+  const handleNegativeFeedback = () => {
+    setShowFeedbackDialog(true);
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim()) {
       return;
     }
-    setShowDetailForm(true);
-  };
 
-  const submitDetailedFeedback = async () => {
+    setLoading(true);
     try {
-      await chatApi.submitFeedback(messageId, {
-        category: feedbackCategory || undefined,
-        details: details
-      });
+      const reply = await notSatisfiedApi.notSatisfied(feedbackText);
+      setBotReply(reply);
+      setShowFeedbackDialog(false);
       setFeedbackSubmitted(true);
-      setShowDetailForm(false);
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
+    } catch (err) {
+      console.error('Error fetching not_satisfied reply:', err);
+      setBotReply('Sorry, something went wrong.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // After feedback, show either the ALT reply or a generic thanks
   if (feedbackSubmitted) {
     return (
-      <div className="text-xs text-gray-500 mt-1">
-        Thank you for your feedback!
-      </div>
-    );
-  }
-
-  if (showDetailForm) {
-    return (
-      <div className="mt-2 space-y-2 text-sm">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className={feedbackCategory === 'inaccuarte' ? 'bg-red-50' : ''}
-            onClick={() => setFeedbackCategory('inaccuarte')}
-          >
-            Inaccurate
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className={feedbackCategory === 'biased' ? 'bg-red-50' : ''}
-            onClick={() => setFeedbackCategory('biased')}
-          >
-            Biased
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className={feedbackCategory === 'irrelevant' ? 'bg-red-50' : ''}
-            onClick={() => setFeedbackCategory('irrelevant')}
-          >
-            Irrelevant
-          </Button>
-        </div>
-        <textarea
-          className="w-full p-2 text-sm border rounded-md"
-          placeholder="Please provide more details about the issue..."
-          value={details}
-          onChange={(e) => setDetails(e.target.value)}
-          rows={2}
-        />
-        <div className="space-x-2">
-          <Button
-            size="sm"
-            onClick={submitDetailedFeedback}
-            disabled={!feedbackCategory || !details}
-          >
-            Submit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowDetailForm(false)}
-          >
-            Cancel
-          </Button>
+      <div>
+       
+        <div className="flex flex-col p-4">
+          <div className={cn(
+            "max-w-[80%] rounded-lg p-4 bg-muted"
+          )}>
+            {loading
+              ? 'Loading…'
+              : botReply
+              ? <div className="whitespace-pre-wrap">{botReply}</div>
+              : 'Thank you for your feedback!'}
+          </div>
         </div>
       </div>
     );
   }
 
+  // Before feedback: show thumbs up/down
   return (
-    <div className="flex items-center gap-2 mt-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-gray-500 hover:text-green-600"
-        onClick={() => handleFeedback(true)}
-      >
-        <ThumbsUp className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-gray-500 hover:text-red-600"
-        onClick={() => handleFeedback(false)}
-      >
-        <ThumbsDown className="h-4 w-4" />
-      </Button>
-    </div>
+    <>
+      <div className="flex items-center gap-2 mt-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-500 hover:text-green-600"
+          onClick={handlePositiveFeedback}
+        >
+          <ThumbsUp className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-500 hover:text-red-600"
+          onClick={handleNegativeFeedback}
+        >
+          <ThumbsDown className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>What wasn't helpful?</DialogTitle>
+            <DialogDescription>
+              Please let us know what wasn't satisfactory about the response so we can improve.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="Tell us what wasn't helpful..."
+            className="min-h-[100px]"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFeedbackDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitFeedback} disabled={!feedbackText.trim()}>
+              Submit Feedback
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
-} 
+}
