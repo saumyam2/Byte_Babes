@@ -1,9 +1,4 @@
-export type Message = {
-  id: string
-  content: string | React.ReactNode
-  role: "user" | "assistant"
-  timestamp: Date
-}
+
 
 export type SuggestionChip = {
   id: string
@@ -54,4 +49,32 @@ export interface Job {
   posted: string
   logo: string
   url: string
+}
+
+// types.ts - Add or update these types in your types file
+
+export interface Message {
+  id: string;
+  content: string | React.ReactNode;
+  role: "user" | "assistant";
+  timestamp: Date;
+  isTyping?: boolean
+  feedbackId?: string
+}
+
+export interface ChatSession {
+  sessionId: string;
+  userId?: string;
+  conversation: Message[];
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export interface UserProfile {
+  name: string;
+  status: string;
+  resumeName?: string;
+  resumeUpdated?: string;
+  goal?: string;
+  avatar?: string;
 }
