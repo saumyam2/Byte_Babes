@@ -39,4 +39,7 @@ app.use('/events',eventsRouter)
 const mentorsRouter = require('./routes/fetchmentors')
 app.use('/mentors',mentorsRouter)
 
+const voicechatRouter = require('./voicechat');
+app.use('/voicechat', voicechatRouter);
+
 module.exports=app
