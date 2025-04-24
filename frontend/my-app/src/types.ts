@@ -3,6 +3,8 @@ export type Message = {
   content: string | React.ReactNode
   role: "user" | "assistant"
   timestamp: Date
+  isTyping?: boolean
+  feedbackId?: string
 }
 
 export type SuggestionChip = {

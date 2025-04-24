@@ -1,6 +1,7 @@
 interface ChatResponse {
   sessionId: string;
   botResponse: string;
+  feedbackId?: string;
 }
 
 interface ChatError extends Error {
@@ -72,6 +73,34 @@ export class ChatApi {
       return data;
     } catch (error) {
       console.error('File Upload Error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  async submitFeedback(feedbackId: string, feedback: { category?: string, details?: string }): Promise<void> {
+    const endpoint = `${this.baseUrl}/feedback`;
+    console.log('Submitting feedback to endpoint:', endpoint);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'feedback-id': feedbackId,
+        },
+        credentials: 'include',
+        body: JSON.stringify(feedback),
+      });
+
+      if (!response.ok) {
+        const error = new Error(`Feedback submission failed! status: ${response.status}`) as ChatError;
+        error.status = response.status;
+        error.statusText = response.statusText;
+        throw error;
+      }
+    } catch (error) {
+      console.error('Feedback Submission Error:', error);
       throw this.handleError(error);
     }
   }

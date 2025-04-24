@@ -345,6 +345,7 @@ export default function Home() {
             content: response.botResponse || "Sorry, I didn't quite get that!",
             role: "assistant",
             timestamp: new Date(),
+            feedbackId: response.feedbackId,
           };
           setMessages((prev) => [...prev, botMessage]);
         } catch (error) {
