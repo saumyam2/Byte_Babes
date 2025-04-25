@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from langdetect import detect
-from fallback_client import call_groq_model
+from .fallback_client import call_groq_model
 
 router = APIRouter()
 

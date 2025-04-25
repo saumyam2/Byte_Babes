@@ -171,12 +171,29 @@ export default function Home() {
     setIsTyping(true);
   
     try {
-      // Event-related query
-      if (
-        message.toLowerCase().includes("event") ||
-        message.toLowerCase().includes("meetup") ||
-        message.toLowerCase().includes("conference")
-      ) {
+      // First, classify the intent using the dedicated intent service
+      let intent = 'general_chat'; // Default intent
+      
+      try {
+        const intentResponse = await axios.post("http://127.0.0.1:8000/classify-intent/", {
+          message: message,
+        });
+        // Parse the intent properly - remove any extra quotes
+        intent = JSON.parse(intentResponse.data.intent);
+        console.log("Received intent from ML model:", intent);
+        console.log("Intent type:", typeof intent);
+        console.log("Intent exact value:", JSON.stringify(intent));
+      } catch (error) {
+        console.error("Intent classification failed, using keyword-based routing", error);
+        // Continue with keyword-based fallback approach
+      }
+      
+      // Handle based on intent or fallback to keyword matching
+      if (intent === "events_search" || 
+          message.toLowerCase().includes("event") ||
+          message.toLowerCase().includes("meetup") ||
+          message.toLowerCase().includes("conference")) {
+        
         try {
           const response = await axios.post("http://localhost:8086/events/getevents", {
             q: message,
@@ -252,13 +269,12 @@ export default function Home() {
           setMessages((prev) => [...prev, errorMessage]);
         }
       }
-  
-      // LinkedIn/mentor search
-      else if (
-        message.toLowerCase().includes("linkedin") ||
-        message.toLowerCase().includes("mentor") ||
-        message.toLowerCase().includes("profile")
-      ) {
+      // LinkedIn/mentor search intent
+      else if (intent === "mentor_search" ||
+               message.toLowerCase().includes("linkedin") ||
+               message.toLowerCase().includes("mentor") ||
+               message.toLowerCase().includes("profile")) {
+        
         try {
           const response = await axios.post("http://localhost:8086/mentors/search", {
             keywords: message,
@@ -335,9 +351,73 @@ export default function Home() {
           setMessages((prev) => [...prev, errorMessage]);
         }
       }
-  
-      // Other messages
+      // Resume feedback intent
+      else if (intent === "resume_feedback") {
+        const resumeMessage: Message = {
+          id: Date.now().toString(),
+          content: <ResumeFeedback onUploadResume={(message: Message) => 
+            setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, resumeMessage]);
+      }
+      // Job search intent
+      else if (intent === "job_search") {
+        const jobSearchMessage: Message = {
+          id: Date.now().toString(),
+          content: <JobSearch onSearch={(message) => 
+            setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, jobSearchMessage]);
+      }
+      // Skill gap analysis intent
+      else if (intent === "skill_gap_analysis") {
+        const skillMessage: Message = {
+          id: Date.now().toString(),
+          content: <SkillGapAnalysisComponent onUploadResume={(message: Message) => 
+            setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, skillMessage]);
+      }
+      // Cold email intent
+      else if (intent === "cold_email") {
+        const emailMessage: Message = {
+          id: Date.now().toString(),
+          content: <LinkedInMessageGenerator />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, emailMessage]);
+      }
+      // Career roadmap intent
+      else if (intent === "career_roadmap") {
+        const roadmapMessage: Message = {
+          id: Date.now().toString(),
+          content: <CareerPathwayComponent onGeneratePathway={(message: Message) => 
+            setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, roadmapMessage]);
+      }
+      // Success stories intent
+      else if (intent === "success_stories") {
+        const storiesMessage: Message = {
+          id: Date.now().toString(),
+          content: <SuccessStories />,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, storiesMessage]);
+      }
+      // Other messages/intents - use the general chatbot API
       else {
+        console.log("No matching intent found, using general chatbot API");
         try {
           const response = await chatApi.sendMessage(message);
           const botMessage: Message = {

@@ -1,5 +1,6 @@
 const Session = require('../model/chatbot');
 const path = require('path');
+const axios = require('axios');
 
 const handleUserMessage = async (req, res) => {
     try {
@@ -17,15 +18,31 @@ const handleUserMessage = async (req, res) => {
   
       session.conversation.push(messageEntry);
   
-      //response from ML model
-      let botResponse = "Thanks for your input!";
-      session.conversation.push({ sender: "bot", message: botResponse });
+      // Get intent classification
+      let intent = 'general_chat';
+      try {
+        const intentResponse = await axios.post('http://127.0.0.1:8000/classify-intent/', {
+          message: userMessage
+        });
+        intent = intentResponse.data.intent;
+        console.log('Classified intent:', intent);
+      } catch (error) {
+        console.error('Intent classification failed:', error);
+      }
+
+      // Store the user message and intent in the session
+      session.conversation.push({ 
+        sender: "user",
+        message: userMessage,
+        intent: intent
+      });
   
       await session.save();
   
+      // Return the intent to frontend where appropriate component will be rendered
       res.json({
         sessionId: req.sessionId,
-        botResponse: botResponse
+        intent: intent
       });
   
     } catch (error) {

@@ -12,8 +12,8 @@ groq_chat = ChatGroq(
 def classify_intent(user_message: str) -> str:
     prompt = f"""
     Classify the intent of the following user message into one of these categories:
-    ["resume builder", "career path", "referral", "gender bias check", "rag query",
-    "skill gap analysis", "linkedin template", "fallback", "other"]
+    ["cold_email", "career_roadmap", "job_search", "mentor_match", "skill_gap_analysis", 
+    "success_stories", "resume_feedback", "find_event", "general"]
 
     User message: "{user_message}"
     Only return the intent label.

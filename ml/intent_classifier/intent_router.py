@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from intent_client import classify_intent
+from .intent_client import classify_intent
 
 router = APIRouter()
 
