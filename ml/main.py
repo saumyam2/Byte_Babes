@@ -64,3 +64,6 @@ app.include_router(intent_router)
 # print("Initial ingesting data...")
 # rag_service.ingest()
 # web_scrape.setup()
+@app.get("/")
+def read_root():
+    return {"message": "Hello from my app!"}
