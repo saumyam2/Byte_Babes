@@ -23,7 +23,7 @@ function Navbar({ className }: { className?: string }) {
             <HoveredLink href="/skill-gap">Skill Gap Analysis</HoveredLink>
             <HoveredLink href="/resume-feedback">Resume Feedback</HoveredLink>
             <HoveredLink href="/career-roadmap">Career Roadmap</HoveredLink>
-            <HoveredLink href="/mentorship">Find a Mentor</HoveredLink>
+            <HoveredLink href="/job-search">Job Search</HoveredLink>
           </div>
         </MenuItem>
         <MenuItem setActive={setActive} active={active} item="Resources">
@@ -31,45 +31,40 @@ function Navbar({ className }: { className?: string }) {
             <ProductItem
               title="Success Stories"
               href="/success-stories"
-              src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=200"
-              description="Get inspired by women who've successfully returned to work."
+              src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Get inspired by women who successfully returned to work."
+            />
+            <ProductItem
+              title="Events & Workshops"
+              href="/events"
+              src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Join our community events and skill-building workshops."
+            />
+            <ProductItem
+              title="Mentorship"
+              href="/mentorship"
+              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Connect with mentors who can guide your career journey."
             />
             <ProductItem
               title="Learning Hub"
               href="/learning"
-              src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=200"
-              description="Access courses, workshops, and resources for upskilling."
-            />
-            <ProductItem
-              title="Community"
-              href="/community"
-              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=200"
-              description="Connect with other women in tech and share experiences."
-            />
-            <ProductItem
-              title="Events"
-              href="/events"
-              src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=200"
-              description="Discover networking events, workshops, and webinars."
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Access curated learning resources and courses."
             />
           </div>
         </MenuItem>
-        <MenuItem setActive={setActive} active={active} item="Job Search">
+        <MenuItem setActive={setActive} active={active} item="Community">
           <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/jobs">Browse Jobs</HoveredLink>
-            <HoveredLink href="/companies">Companies</HoveredLink>
-            <HoveredLink href="/saved-jobs">Saved Jobs</HoveredLink>
-            <HoveredLink href="/job-alerts">Job Alerts</HoveredLink>
+            <HoveredLink href="/forum">Discussion Forum</HoveredLink>
+            <HoveredLink href="/networking">Networking</HoveredLink>
+            <HoveredLink href="/support-groups">Support Groups</HoveredLink>
+            <HoveredLink href="/success-stories">Success Stories</HoveredLink>
           </div>
         </MenuItem>
-        <MenuItem setActive={setActive} active={active} item="Profile">
-          <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/dashboard">Dashboard</HoveredLink>
-            <HoveredLink href="/profile">My Profile</HoveredLink>
-            <HoveredLink href="/applications">Applications</HoveredLink>
-            <HoveredLink href="/settings">Settings</HoveredLink>
-          </div>
-        </MenuItem>
+        <HoveredLink href="/login" className="text-sm font-medium">
+          Login
+        </HoveredLink>
       </Menu>
     </div>
   );
