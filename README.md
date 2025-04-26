@@ -89,8 +89,8 @@ cd backend
 npm start
 ```
 ### Endpoints 
-![Uploading image.png…]()
 
+<img width="665" alt="Screenshot 2025-04-26 at 5 44 10 PM" src="https://github.com/user-attachments/assets/f74479a8-cebe-4b29-9692-61e85c3594b8" />
 
 ## Project Structure
 
