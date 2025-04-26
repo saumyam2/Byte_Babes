@@ -24,11 +24,11 @@ const SMART_CHIPS: SmartChip[] = [
   },
   {
     id: "email",
-    label: "Write cold email",
+    label: "Write cold message",
     icon: "📩",
     color: "#D2B6E2",
     action: "cold_email",
-    message: "I'd like help writing a cold email to potential employers."
+    message: "I'd like help writing a cold message."
   },
   {
     id: "events",

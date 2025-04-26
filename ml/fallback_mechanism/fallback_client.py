@@ -1,37 +1,18 @@
+import google.generativeai as genai
 import os
-import requests
-from deep_translator import GoogleTranslator
-from langdetect import detect
 from dotenv import load_dotenv
 
-# Load Groq API key
+# Load API key from environment
 load_dotenv()
-groq_api_key = os.getenv("GROQ_API_KEY")
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+genai_api_key = os.getenv("GEMINI_API_KEY")
 
-def call_groq_model(prompt: str, user_lang: str = "en", model: str = "llama3-8b-8192") -> str:
-    if user_lang != "en":
-        prompt = GoogleTranslator(source='auto', target='en').translate(prompt)
+# Configure Gemini
+genai.configure(api_key=genai_api_key)
 
-    headers = {
-        "Authorization": f"Bearer {groq_api_key}",
-        "Content-Type": "application/json"
-    }
+# Initialize Gemini model
+model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.7
-    }
-
-    response = requests.post(GROQ_API_URL, headers=headers, json=payload)
-    response.raise_for_status()
-    result = response.json()["choices"][0]["message"]["content"]
-    
-    if user_lang != "en":
-        result = GoogleTranslator(source='en', target=user_lang).translate(result)
-
-    return result
+def call_gemini_model(prompt: str, user_lang: str = "en") -> str:
+    # Gemini handles translation internally based on prompt context
+    response = model.generate_content(prompt)
+    return response.text

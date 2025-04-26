@@ -1,14 +1,8 @@
 import { useRef, useEffect } from "react"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-
-type Message = {
-  id: string
-  content: string | React.ReactNode
-  role: "user" | "assistant"
-  timestamp: Date
-  isTyping?: boolean
-}
+import { MessageFeedback } from "./MessageFeedback"
+import { Message } from "@/types"
 
 interface MessageListProps {
   messages: Message[]
@@ -21,9 +15,19 @@ export function MessageList({ messages }: MessageListProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  // Find the last user message for feedback context
+  const getLastUserMessage = (upToIndex: number): string => {
+    for (let i = upToIndex - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        return messages[i].content?.toString() || "";
+      }
+    }
+    return "";
+  };
+
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <div
           key={message.id}
           className={cn(
@@ -38,22 +42,30 @@ export function MessageList({ messages }: MessageListProps) {
               </div>
             </Avatar>
           )}
-          <div
-            className={cn(
-              "max-w-[80%] rounded-lg p-3",
-              message.role === "user"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted"
-            )}
-          >
-            {message.isTyping ? (
-              <div className="flex gap-1">
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
-                <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.4s]" />
-              </div>
-            ) : (
-              message.content
+          <div className="flex flex-col">
+            <div
+              className={cn(
+                "max-w-[80%] rounded-lg p-3",
+                message.role === "user"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted"
+              )}
+            >
+              {message.isTyping ? (
+                <div className="flex gap-1">
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce" />
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.2s]" />
+                  <div className="h-2 w-2 rounded-full bg-current animate-bounce [animation-delay:0.4s]" />
+                </div>
+              ) : (
+                message.content
+              )}
+            </div>
+            {message.role === "assistant" && !message.isTyping && (
+              <MessageFeedback 
+                messageId={message.id} 
+                userMessage={getLastUserMessage(index)}
+              />
             )}
           </div>
           {message.role === "user" && (

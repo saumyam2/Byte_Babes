@@ -7,6 +7,11 @@ const feedbackSchema = new mongoose.Schema({
         required: true, 
         unique: true 
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null 
+    },
     conversation: {
         type: [messageSchema], 
         default: []

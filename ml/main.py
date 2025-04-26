@@ -11,11 +11,13 @@ from continuous_learning import continuous_learning_router
 from referral import referral_content_router
 from webscrape import web_scrape, webscrape_router
 from skill_gap_analysis import skill_gap_router
-from fallback_mechanism.fallback_router import router as fall_router
-from content_moderation.moderation_router import router as mod_router
-from linkedin_template.template_router import router as temp_router
-from career_pathway.career_router import router as car_router
+from fallback_mechanism.fallback_router import router as fallback_router
+from content_moderation.moderation_router import router as moderation_router
+from linkedin_template.template_router import router as template_router
+from career_pathway.career_router import router as career_router
 from resume_builder.resume_router import router as builder_router
+from intent_classifier.intent_router import router as intent_router
+
 
 
 from databases import initialize_db
@@ -51,11 +53,12 @@ app.include_router(continuous_learning_router.router)
 app.include_router(referral_content_router.router)
 app.include_router(webscrape_router.router)
 app.include_router(skill_gap_router.router)
-app.include_router(fall_router)
-app.include_router(mod_router)
-app.include_router(temp_router)
-app.include_router(car_router)
+app.include_router(fallback_router)
+app.include_router(moderation_router)
+app.include_router(template_router)
+app.include_router(career_router)
 app.include_router(builder_router)
+app.include_router(intent_router)
 
 # Initial ingest
 print("Initial ingesting data...")
