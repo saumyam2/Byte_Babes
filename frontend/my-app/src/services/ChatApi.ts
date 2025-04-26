@@ -13,7 +13,7 @@ export class ChatApi {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = 'https://asha-ai-hackathon-xbkm.onrender.com';
+    this.baseUrl = 'https://byte-babes.onrender.com';
     console.log('ChatApi initialized with baseUrl:', this.baseUrl);
   }
 

@@ -17,7 +17,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('https://asha-ai-hackathon-xbkm.onrender.com/user/login', {
+      const res = await fetch('https://byte-babes.onrender.com/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

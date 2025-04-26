@@ -195,7 +195,7 @@ export default function Home() {
           message.toLowerCase().includes("conference")) {
         
         try {
-          const response = await axios.post("https://asha-ai-hackathon-xbkm.onrender.com/events/getevents", {
+          const response = await axios.post("https://byte-babes.onrender.com/events/getevents", {
             q: message,
           });
   
@@ -276,7 +276,7 @@ export default function Home() {
                message.toLowerCase().includes("profile")) {
         
         try {
-          const response = await axios.post("https://asha-ai-hackathon-xbkm.onrender.com/mentors/search", {
+          const response = await axios.post("https://byte-babes.onrender.com/mentors/search", {
             keywords: message,
           });
   

@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 
-const backendUrl = "https://asha-ai-hackathon-xbkm.onrender.com";
+const backendUrl = "https://byte-babes.onrender.com";
 
 const ChatContext = createContext();
 
