@@ -72,13 +72,25 @@ npm install
 ```bash
 npm run dev
 ```
+4. Install ml dependencies
+```bash
+cd ml
+python -m venv venv     
+source venv/bin/activate
+pip install -r requirements.txt
+```
+5. Start ml server
+```bash
+uvicorn main:app --reload
+```
+6.Install backend dependencies and start server
+```bash
+cd backend
+npm start
+```
+### Endpoints 
+![Uploading image.png…]()
 
-### Environment Setup
-Create a `.env` file in the frontend directory with necessary API keys and endpoints:
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_EVENTS_API=http://localhost:8086
-```
 
 ## Project Structure
 
