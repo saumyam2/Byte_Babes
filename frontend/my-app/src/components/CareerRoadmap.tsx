@@ -14,7 +14,7 @@ const generateCareerPathway = async (
   targetIndustry: string,
   targetCompanies: string[]
 ) => {
-  const response = await fetch('http://127.0.0.1:8000/generate-career-pathway/', {
+  const response = await fetch('https://jobsforher-bytebabes.onrender.com/generate-career-pathway/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

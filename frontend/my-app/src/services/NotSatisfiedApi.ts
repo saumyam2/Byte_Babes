@@ -7,7 +7,7 @@ export class NotSatisfiedApi {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = 'http://127.0.0.1:8000';
+    this.baseUrl = 'https://jobsforher-bytebabes.onrender.com';
     console.log('NotSatisfiedApi initialized with baseUrl:', this.baseUrl);
   }
 

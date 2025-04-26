@@ -8,7 +8,7 @@ export class IntentClassifierApi {
     
     constructor() {
       // Use the correct base URL for your intent classifier service
-      this.baseUrl = 'http://127.0.0.1:8000'; // Adjust this to your intent classifier URL
+      this.baseUrl = 'https://jobsforher-bytebabes.onrender.com'; // Adjust this to your intent classifier URL
       console.log('IntentClassifierApi initialized with baseUrl:', this.baseUrl);
     }
     

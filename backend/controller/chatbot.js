@@ -21,7 +21,7 @@ const handleUserMessage = async (req, res) => {
       // Get intent classification
       let intent = 'general_chat';
       try {
-        const intentResponse = await axios.post('http://127.0.0.1:8000/classify-intent/', {
+        const intentResponse = await axios.post('https://jobsforher-bytebabes.onrender.com/classify-intent/', {
           message: userMessage
         });
         intent = intentResponse.data.intent;

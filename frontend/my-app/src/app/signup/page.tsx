@@ -21,7 +21,7 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('http://localhost:8086/user/signup', {
+      const res = await fetch('https://asha-ai-hackathon-xbkm.onrender.com/user/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

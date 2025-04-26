@@ -43,7 +43,7 @@ export default function ResumeFeedback({ onUploadResume }: ResumeFeedbackProps) 
       formData.append("file", file);
       formData.append("keywords", keywords);
       
-      const response = await fetch("http://127.0.0.1:8000/optimize-resume/", {
+      const response = await fetch("https://jobsforher-bytebabes.onrender.com/optimize-resume/", {
         method: "POST",
         body: formData,
       });

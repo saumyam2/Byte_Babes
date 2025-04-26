@@ -5,7 +5,7 @@ import { Message } from "@/types"
 import { JobCards } from "./JobCards"
 
 // API base URL
-const API_BASE_URL = "http://localhost:8086"
+const API_BASE_URL = "https://asha-ai-hackathon-xbkm.onrender.com"
 
 // First, add a type for the job search parameters
 interface JobSearchParams {

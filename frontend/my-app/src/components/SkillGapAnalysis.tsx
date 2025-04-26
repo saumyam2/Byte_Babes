@@ -34,7 +34,7 @@ const analyzeSkillGap = async (file: string | Blob, jobDescription: string | Blo
     formData.append('job_description_file', jobDescription);
   }
 
-  const response = await fetch('http://127.0.0.1:8000/skill-gap-analysis', {
+  const response = await fetch('https://jobsforher-bytebabes.onrender.com/skill-gap-analysis', {
     method: 'POST',
     body: formData,
   });
