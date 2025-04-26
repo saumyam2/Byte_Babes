@@ -5,11 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from gender_bias import gender_bias_router
-from ingest import ingest_controller
-from rag import rag_controller, rag_service
+# from ingest import ingest_controller
+# from rag import rag_controller, rag_service
 from continuous_learning import continuous_learning_router
 from referral import referral_content_router
-from webscrape import web_scrape, webscrape_router
+# from webscrape import web_scrape, webscrape_router
 from skill_gap_analysis import skill_gap_router
 from fallback_mechanism.fallback_router import router as fallback_router
 from content_moderation.moderation_router import router as moderation_router
@@ -20,9 +20,9 @@ from intent_classifier.intent_router import router as intent_router
 
 
 
-from databases import initialize_db
+# from databases import initialize_db
 
-initialize_db()
+# initialize_db()
 
 
 app = FastAPI()
@@ -47,11 +47,11 @@ app.mount(
 
 # Include only RAG and ingest routers
 app.include_router(gender_bias_router.router)
-app.include_router(rag_controller.router)
-app.include_router(ingest_controller.router, tags=["knowledge-sources"])
+# app.include_router(rag_controller.router)
+# app.include_router(ingest_controller.router, tags=["knowledge-sources"])
 app.include_router(continuous_learning_router.router)
 app.include_router(referral_content_router.router)
-app.include_router(webscrape_router.router)
+# app.include_router(webscrape_router.router)
 app.include_router(skill_gap_router.router)
 app.include_router(fallback_router)
 app.include_router(moderation_router)
@@ -61,6 +61,6 @@ app.include_router(builder_router)
 app.include_router(intent_router)
 
 # Initial ingest
-print("Initial ingesting data...")
-rag_service.ingest()
-web_scrape.setup()
+# print("Initial ingesting data...")
+# rag_service.ingest()
+# web_scrape.setup()
