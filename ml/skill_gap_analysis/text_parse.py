@@ -2,6 +2,14 @@
 import re
 
 SKILL_KEYWORDS = [
+    "artificial intelligence",
+    "machine learning",
+    "data science",
+    "deep learning",
+    "NLP",
+    "CV",
+    "blockchain",
+    "azure",
     "python",
     "java",
     "c++",
@@ -41,6 +49,7 @@ SKILL_KEYWORDS = [
     "next.js",
     "express.js",
 ]
+
 
 def parse_text_resume(text: str) -> list:
     """
