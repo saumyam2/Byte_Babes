@@ -9,7 +9,6 @@ SKILL_KEYWORDS = [
     "NLP",
     "CV",
     "blockchain",
-    "azure",
     "python",
     "java",
     "c++",

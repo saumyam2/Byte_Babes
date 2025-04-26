@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from skill_gap_analysis.parser import parse
 from skill_gap_analysis.skill_gap_service import generate_learning_roadmap
@@ -17,11 +17,15 @@ async def analyze(
     if job_description_file:
         jd_content = await job_description_file.read()
         jd_skills = parse(jd_content)
+        print("Job Description Skills:", jd_skills)
     else:
         jd_skills = parse_text_resume(job_description_text)
+        print("Job Description Skills:", jd_skills)
 
     resume_skills = parse(resume_content)
+    print("Resume Skills:", resume_skills)
     missing_skills = set(jd_skills) - set(resume_skills)
+    print("Missing Skills:", missing_skills)
 
     roadmaps = {}
 
