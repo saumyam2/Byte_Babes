@@ -17,8 +17,3 @@ async def scrape(request: ChatRequest):
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/hi")
-async def hi():
-    return {"message": "Hello from webscrape!"}
