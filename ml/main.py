@@ -62,6 +62,9 @@ app.include_router(intent_router)
 app.include_router(cover_letter_router)
 
 # Initial ingest
-print("Initial ingesting data...")
-rag_service.ingest()
-web_scrape.setup()
+# print("Initial ingesting data...")
+# rag_service.ingest()
+# web_scrape.setup()
+@app.get("/")
+def read_root():
+    return {"message": "Hello from my app!"}

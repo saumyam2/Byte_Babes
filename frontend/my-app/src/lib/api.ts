@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8086'
+const API_BASE_URL = 'https://byte-babes.onrender.com'
 
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token')

@@ -18,9 +18,14 @@ interface LearningPathStep {
 }
 
 interface LearningData {
-  azure: {
+  [skill: string]: {
     steps: LearningPathStep[];
   };
+}
+
+interface AnalysisResponse {
+  message?: string;
+  [skill: string]: any;
 }
 
 // Service function to communicate with the backend
@@ -34,7 +39,7 @@ const analyzeSkillGap = async (file: string | Blob, jobDescription: string | Blo
     formData.append('job_description_file', jobDescription);
   }
 
-  const response = await fetch('http://127.0.0.1:8000/skill-gap-analysis', {
+  const response = await fetch('https://jobsforher-bytebabes.onrender.com/skill-gap-analysis', {
     method: 'POST',
     body: formData,
   });
@@ -56,6 +61,7 @@ export function SkillGapAnalysisComponent({ onUploadResume }: SkillGapAnalysisPr
   const [jobDescriptionFile, setJobDescriptionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [LearningPath, setLearningPath] = useState<LearningData | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [inputMethod, setInputMethod] = useState('text'); // 'text' or 'file'
   const [expandedSteps, setExpandedSteps] = useState<number[]>([0]); // First step expanded by default
@@ -88,15 +94,22 @@ export function SkillGapAnalysisComponent({ onUploadResume }: SkillGapAnalysisPr
 
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
+    setLearningPath(null);
 
     try {
-      const analysis = await analyzeSkillGap(
+      const analysis: AnalysisResponse = await analyzeSkillGap(
         file, 
         inputMethod === 'text' ? jobDescription : jobDescriptionFile
       );
       
-      // Store Azure learning path data
-      setLearningPath(analysis);
+      console.log('Received analysis data:', analysis);
+
+      if (analysis.message === "No missing skills found.") {
+        setSuccessMessage("Great news! Your skills match well with the job requirements.");
+      } else {
+        setLearningPath(analysis as LearningData);
+      }
       
       // If onUploadResume callback exists, call it with a message
       if (onUploadResume) {
@@ -108,8 +121,8 @@ export function SkillGapAnalysisComponent({ onUploadResume }: SkillGapAnalysisPr
         });
       }
     } catch (err) {
+      console.error('Error in skill gap analysis:', err);
       setError('Failed to analyze skill gap. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -178,51 +191,70 @@ export function SkillGapAnalysisComponent({ onUploadResume }: SkillGapAnalysisPr
         </div>
       )}
 
+      {successMessage && (
+        <Card className="p-6">
+          <div className="flex items-center text-green-600 gap-2">
+            <CheckCircle className="h-5 w-5" />
+            <p className="text-lg font-medium">{successMessage}</p>
+          </div>
+        </Card>
+      )}
+
       {LearningPath && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Your Azure Learning Path</h2>
+          <h2 className="text-xl font-bold mb-4">Your Learning Path</h2>
           <div className="space-y-4">
-            {LearningPath.azure.steps.map((step, index) => (
-              <div key={index} className="border rounded-lg overflow-hidden">
-                <div 
-                  className="bg-blue-50 p-4 flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleExpand(index)}
-                >
-                  <h3 className="font-semibold text-lg">{step.title}</h3>
-                  <Button variant="ghost" size="sm">
-                    {expandedSteps.includes(index) ? 
-                      <ChevronUp className="h-5 w-5" /> : 
-                      <ChevronDown className="h-5 w-5" />
-                    }
-                  </Button>
-                </div>
-                
-                {expandedSteps.includes(index) && (
-                  <div className="p-4 space-y-3">
-                    <p className="font-medium">Recommended Courses:</p>
-                    <div className="space-y-2">
-                      {step.recommended_courses.map((course, courseIndex) => (
-                        <div key={courseIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                          <div className="flex-1">
-                            <a 
-                              href={course.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline flex items-center gap-1"
-                            >
-                              {formatUrl(course.url)}
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </div>
-                          {course.certification && (
-                            <div className="flex items-center text-green-600">
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              <span className="text-sm">Certification Available</span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+            {Object.entries(LearningPath).map(([skill, data]) => (
+              <div key={skill} className="mb-6">
+                <h3 className="text-lg font-semibold mb-3 text-blue-600">{skill.toUpperCase()}</h3>
+                {data?.steps?.map((step, index) => (
+                  <div key={index} className="border rounded-lg overflow-hidden mb-3">
+                    <div 
+                      className="bg-blue-50 p-4 flex justify-between items-center cursor-pointer"
+                      onClick={() => toggleExpand(index)}
+                    >
+                      <h3 className="font-semibold text-lg">{step.title}</h3>
+                      <Button variant="ghost" size="sm">
+                        {expandedSteps.includes(index) ? 
+                          <ChevronUp className="h-5 w-5" /> : 
+                          <ChevronDown className="h-5 w-5" />
+                        }
+                      </Button>
                     </div>
+                    
+                    {expandedSteps.includes(index) && (
+                      <div className="p-4 space-y-3">
+                        <p className="font-medium">Recommended Courses:</p>
+                        <div className="space-y-2">
+                          {step.recommended_courses?.map((course, courseIndex) => (
+                            <div key={courseIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                              <div className="flex-1">
+                                <a 
+                                  href={course.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline flex items-center gap-1"
+                                >
+                                  {formatUrl(course.url)}
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </div>
+                              {course.certification && (
+                                <div className="flex items-center text-green-600">
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  <span className="text-sm">Certification Available</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {(!data?.steps || data.steps.length === 0) && (
+                  <div className="text-gray-500 italic">
+                    No learning path available for this skill.
                   </div>
                 )}
               </div>

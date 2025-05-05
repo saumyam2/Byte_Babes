@@ -15,7 +15,7 @@ export function LinkedInMessageGenerator() {
   const handleGenerate = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/generate-linkedin-message/", {
+      const response = await fetch("https://jobsforher-bytebabes.onrender.com/generate-linkedin-message/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

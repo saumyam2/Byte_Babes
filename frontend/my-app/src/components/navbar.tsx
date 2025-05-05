@@ -18,55 +18,54 @@ function Navbar({ className }: { className?: string }) {
       className={cn("fixed top-10 inset-x-0 max-w-2xl mx-auto z-50", className)}
     >
       <Menu setActive={setActive}>
-        <MenuItem setActive={setActive} active={active} item="Services">
+        <MenuItem setActive={setActive} active={active} item="Career Tools">
           <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/web-dev">Web Development</HoveredLink>
-            <HoveredLink href="/interface-design">Interface Design</HoveredLink>
-            <HoveredLink href="/seo">Search Engine Optimization</HoveredLink>
-            <HoveredLink href="/branding">Branding</HoveredLink>
+            <HoveredLink href="/skill-gap">Skill Gap Analysis</HoveredLink>
+            <HoveredLink href="/resume-feedback">Resume Feedback</HoveredLink>
+            <HoveredLink href="/career-roadmap">Career Roadmap</HoveredLink>
+            <HoveredLink href="/job-search">Job Search</HoveredLink>
           </div>
         </MenuItem>
-        <MenuItem setActive={setActive} active={active} item="Products">
-          <div className="  text-sm grid grid-cols-2 gap-10 p-4">
+        <MenuItem setActive={setActive} active={active} item="Resources">
+          <div className="text-sm grid grid-cols-2 gap-10 p-4">
             <ProductItem
-              title="Algochurn"
-              href="https://algochurn.com"
-              src="https://assets.aceternity.com/demos/algochurn.webp"
-              description="Prepare for tech interviews like never before."
+              title="Success Stories"
+              href="/success-stories"
+              src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Get inspired by women who successfully returned to work."
             />
             <ProductItem
-              title="Tailwind Master Kit"
-              href="https://tailwindmasterkit.com"
-              src="https://assets.aceternity.com/demos/tailwindmasterkit.webp"
-              description="Production ready Tailwind css components for your next project"
+              title="Events & Workshops"
+              href="/events"
+              src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Join our community events and skill-building workshops."
             />
             <ProductItem
-              title="Moonbeam"
-              href="https://gomoonbeam.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.51.31%E2%80%AFPM.png"
-              description="Never write from scratch again. Go from idea to blog in minutes."
+              title="Mentorship"
+              href="/mentorship"
+              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Connect with mentors who can guide your career journey."
             />
             <ProductItem
-              title="Rogue"
-              href="https://userogue.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.47.07%E2%80%AFPM.png"
-              description="Respond to government RFPs, RFIs and RFQs 10x faster using AI"
+              title="Learning Hub"
+              href="/learning"
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              description="Access curated learning resources and courses."
             />
           </div>
         </MenuItem>
-        <MenuItem setActive={setActive} active={active} item="Pricing">
+        <MenuItem setActive={setActive} active={active} item="Community">
           <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/hobby">Hobby</HoveredLink>
-            <HoveredLink href="/individual">Individual</HoveredLink>
-            <HoveredLink href="/team">Team</HoveredLink>
-            <HoveredLink href="/enterprise">Enterprise</HoveredLink>
+            <HoveredLink href="/forum">Discussion Forum</HoveredLink>
+            <HoveredLink href="/networking">Networking</HoveredLink>
+            <HoveredLink href="/support-groups">Support Groups</HoveredLink>
+            <HoveredLink href="/success-stories">Success Stories</HoveredLink>
           </div>
         </MenuItem>
         <HoveredLink href="/login" className="text-sm font-medium">
           Login
         </HoveredLink>
       </Menu>
-      
     </div>
   );
 }

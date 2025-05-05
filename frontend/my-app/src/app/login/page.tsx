@@ -17,7 +17,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('http://localhost:8086/user/login', {
+      const res = await fetch('https://byte-babes.onrender.com/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

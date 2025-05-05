@@ -44,7 +44,7 @@ export default function EventsComponent({ onSearch }: EventsComponentProps) {
       setLoading(true);
       
       // Make API call to your backend endpoint
-      const response = await axios.post('http://localhost:8086/events/getevents', {
+      const response = await axios.post('https://byte-babes.onrender.com/events/getevents', {
         q: query
       });
 

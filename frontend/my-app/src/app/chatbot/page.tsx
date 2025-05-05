@@ -175,7 +175,7 @@ export default function Home() {
       let intent = 'general_chat'; // Default intent
       
       try {
-        const intentResponse = await axios.post("http://127.0.0.1:8000/classify-intent/", {
+        const intentResponse = await axios.post("https://jobsforher-bytebabes.onrender.com/classify-intent/", {
           message: message,
         });
         // Parse the intent properly - remove any extra quotes
@@ -195,7 +195,7 @@ export default function Home() {
           message.toLowerCase().includes("conference")) {
         
         try {
-          const response = await axios.post("http://localhost:8086/events/getevents", {
+          const response = await axios.post("https://byte-babes.onrender.com/events/getevents", {
             q: message,
           });
   
@@ -276,7 +276,7 @@ export default function Home() {
                message.toLowerCase().includes("profile")) {
         
         try {
-          const response = await axios.post("http://localhost:8086/mentors/search", {
+          const response = await axios.post("https://byte-babes.onrender.com/mentors/search", {
             keywords: message,
           });
   
