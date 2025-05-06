@@ -64,14 +64,22 @@ const SMART_CHIPS: SmartChip[] = [
     message: "I'd like to read some career success stories for inspiration."
   },
   {
-    id: "resume",
-    label: "Resume feedback",
-    icon: "📝",
+    id:"cover_letter",
+    label: "Cover letter",
+    icon: "📝" ,
     color: "#FFE4EC",
-    action: "resume_feedback",
-    message: "I'd like feedback on my resume to improve it."
+    action: "cover_letter",
+    message: "I'd like to generate a cover letter for a job application."
+  },
+  // {
+  //   id: "resume",
+  //   label: "Resume feedback",
+  //   icon: "📝",
+  //   color: "#FFE4EC",
+  //   action: "resume_feedback",
+  //   message: "I'd like feedback on my resume to improve it."
     
-  }
+  // }
 ]
 
 export function SmartSuggestionChips({ onChipClick }: SmartSuggestionChipsProps) {

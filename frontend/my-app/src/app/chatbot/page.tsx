@@ -23,6 +23,7 @@ import EventsComponent from "@/components/EventsDetail"
 import { Clock, MapPin, ExternalLink, Briefcase, Box } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { v4 as uuidv4 } from 'uuid'
+import CoverLetterGenerator  from "@/components/CoverLetterGenerator"
 
 // Types
 type SuggestionChip = {
@@ -565,6 +566,14 @@ export default function Home() {
         response = {
           id: `assistant-${timestamp}`,
           content: <EventsComponent onSearch={(message) => setMessages((prev) => [...prev, message])} />,
+          role: "assistant",
+          timestamp: new Date(timestamp + 1),
+        }
+        break
+      case "cover_letter":
+        response = {  
+          id: `assistant-${timestamp}`,
+          content: <CoverLetterGenerator />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }
