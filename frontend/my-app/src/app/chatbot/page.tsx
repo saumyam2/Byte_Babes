@@ -24,6 +24,7 @@ import { Clock, MapPin, ExternalLink, Briefcase, Box } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { v4 as uuidv4 } from 'uuid'
 import CoverLetterGenerator  from "@/components/CoverLetterGenerator"
+import Referral from "@/components/Referral"
 
 // Types
 type SuggestionChip = {
@@ -574,6 +575,14 @@ export default function Home() {
         response = {  
           id: `assistant-${timestamp}`,
           content: <CoverLetterGenerator />,
+          role: "assistant",
+          timestamp: new Date(timestamp + 1),
+        }
+        break
+      case "referral":
+        response = {
+          id: `assistant-${timestamp}`,
+          content: <Referral />,
           role: "assistant",
           timestamp: new Date(timestamp + 1),
         }

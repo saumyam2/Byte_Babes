@@ -55,14 +55,14 @@ const SMART_CHIPS: SmartChip[] = [
     action: "career_roadmap",
     message: "I want to create a career development roadmap."
   },
-  {
-    id: "stories",
-    label: "Success stories",
-    icon: "❤️‍🔥",
-    color: "#FFE4EC",
-    action: "success_stories",
-    message: "I'd like to read some career success stories for inspiration."
-  },
+  // {
+  //   id: "stories",
+  //   label: "Success stories",
+  //   icon: "❤️‍🔥",
+  //   color: "#FFE4EC",
+  //   action: "success_stories",
+  //   message: "I'd like to read some career success stories for inspiration."
+  // },
   {
     id:"cover_letter",
     label: "Cover letter",
@@ -70,6 +70,14 @@ const SMART_CHIPS: SmartChip[] = [
     color: "#FFE4EC",
     action: "cover_letter",
     message: "I'd like to generate a cover letter for a job application."
+  },
+  {
+    id: "referral",
+    label: "Referral Email",
+    icon: "🤝",
+    color: "#D2B6E2",
+    action: "referral",
+    message: "I want to generate a referral email for a job."
   },
   // {
   //   id: "resume",
