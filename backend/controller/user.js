@@ -61,6 +61,17 @@ const deleteuser=async(req,res)=>{
         res.status(500).send("Error in deleting user")
     }
 }
+const getuserName = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('username');
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+        res.json({ username: user.username });
+    } catch (error) {
+        res.status(500).send("Error fetching username");
+    }
+};
 const updateuser=async(req,res)=>{
     try {
         const user=await User.findByIdAndUpdate(req.user._id,req.body,)
@@ -72,5 +83,5 @@ const updateuser=async(req,res)=>{
 module.exports ={
     register,
     log,
-    deleteuser,updateuser,getusers
+    deleteuser,updateuser,getusers,getuserName
 }
