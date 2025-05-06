@@ -1,31 +1,25 @@
 import os
 from dotenv import load_dotenv
-from langchain_groq import ChatGroq
-from deep_translator import GoogleTranslator
-from langdetect import detect
-from langchain.chains import ConversationChain
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.memory import ConversationSummaryBufferMemory
 from langchain.prompts import PromptTemplate
 
 load_dotenv()
-groq_api_key = os.getenv("GROQ_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-def detect_language(text: str) -> str:
-    try:
-        return detect(text)
-    except:
-        return "en"
+store = {}
 
-def translate(text: str, source: str, target: str) -> str:
-    try:
-        return GoogleTranslator(source=source, target=target).translate(text)
-    except:
-        return text
+def get_session_history(session_id: str) -> InMemoryChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
 
-llm = ChatGroq(
+llm = ChatGoogleGenerativeAI(
     temperature=0.5,
-    model_name="llama3-8b-8192",
-    api_key=groq_api_key
+    model="gemini-2.0-flash",
+    api_key=gemini_api_key
 )
 
 memory = ConversationSummaryBufferMemory(
@@ -35,35 +29,39 @@ memory = ConversationSummaryBufferMemory(
 )
 
 prompt = PromptTemplate.from_template("""
-    You are a vigilant, empathetic assistant. Your job is to:
-    1. First check the user's message for harmful, disrespectful, or biased content (especially gender bias or discrimination).
-    2. If the message is inappropriate, respond ONLY with this warning: 
-    "Your message contains inappropriate or biased language. Please rephrase respectfully."
-    3. If the message is safe, continue as an empathetic, inclusive assistant who encourages, empowers, and supports everyone—especially women. 
-    Promote respect, equity, and strength through your words. Be kind, supportive, and thoughtful.
-                                      
-    Always respond in the language of the user's message.
+You are a vigilant, empathetic, friendly assistant created to foster respectful, inclusive, and empowering conversations.
 
-    Context: {history}
-    User: {input}
+Your job is to:
+1. Check if the user's message contains any harmful, disrespectful, or biased content (especially gender bias, discrimination, or inappropriate language).
+2. If the message is inappropriate, respond ONLY with:
+   "Your message contains inappropriate or biased language. Please rephrase respectfully."
+3. If the message is appropriate, respond in a kind, thoughtful, inclusive, and supportive way—especially uplifting women and underrepresented groups.
+4. You are also allowed to answer **career-related queries**, such as questions about jobs, internships, resumes, career paths, personal growth, and workplace challenges. Be insightful and encouraging in your responses.
+5. If the user asks about anything **outside of empathy, support, or career guidance** (e.g., general knowledge, movies, trivia, music, sports), gently redirect them with:
+   "I'm here to support your emotional well-being or career growth. Could you please ask something related to that?"
 
-    Your task:
-    - If message is unsafe, respond with a warning and tell the user to re-phrase their query.
-    - If message is appropriate, respond empathetically.
+Important:
+- Never answer general knowledge, trivia, entertainment, or unrelated questions.
+
+Context (conversation so far):  
+{history}  
+User message: {input}
+
+Your task:
+- If message is unsafe, return the warning.
+- If safe and appropriate, respond empathetically or with career-related guidance.
+- If off-topic, redirect user respectfully.
 """)
 
-conversation = ConversationChain(
-    llm=llm,
-    memory=memory,
-    verbose=True,
-    prompt=prompt
-)
+chain = RunnableWithMessageHistory(llm, get_session_history)
 
-def get_chat_response(user_message: str) -> str:
-    user_lang = detect_language(user_message)
-
-    translated_input = translate(user_message, source=user_lang, target="en")
-    english_response = conversation.run(translated_input)
-    final_response = translate(english_response, source="en", target=user_lang)
-
-    return final_response
+def get_chat_response(user_message: str, session_id: str) -> str:
+    # Ensure that the response is a string
+    response = chain.invoke(user_message, config={"configurable": {"session_id": session_id}})
+    
+    if isinstance(response, str):
+        return response  # Return the response as is if it's already a string
+    elif hasattr(response, '__str__'):
+        return str(response)  # Convert to string if the response has a __str__ method
+    else:
+        return "Unable to generate a response."
