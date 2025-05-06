@@ -113,23 +113,6 @@ export function ChatInput({ onSendMessage, onLanguageChange, currentLanguage }: 
           className="flex-1"
         />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={isRecording ? "destructive" : "outline"}
-                size="icon"
-                onClick={() => setIsRecording(!isRecording)}
-              >
-                <Mic className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isRecording ? "Stop recording" : "Start recording"}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
         <DropdownMenu open={showLanguageDropdown} onOpenChange={setShowLanguageDropdown}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
