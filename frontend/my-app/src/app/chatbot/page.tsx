@@ -22,6 +22,7 @@ import ResumeFeedback from "@/components/ResumeFeedback"
 import EventsComponent from "@/components/EventsDetail"
 import { Clock, MapPin, ExternalLink, Briefcase, Box } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { v4 as uuidv4 } from 'uuid'
 
 // Types
 type SuggestionChip = {
@@ -65,20 +66,43 @@ type MentorProfile = {
 
 export default function Home() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "Hi there! I'm Asha, your career companion. How can I help you today?",
-      role: "assistant",
-      timestamp: new Date(),
-    },
-  ])
 
-  const [isTyping, setIsTyping] = useState(false)
-  const [language, setLanguage] = useState("EN")
-  const [activeSidebar, setActiveSidebar] = useState<"jobs" | "mentors" | null>(null)
-  const [showLeftPane, setShowLeftPane] = useState(true)
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  // Sessions state: each session has id, messages, and created timestamp
+  const [sessions, setSessions] = useState([
+    {
+      sessionId: 'default',
+      messages: [
+        {
+          id: 'welcome',
+          content: "Hi there! I'm Asha, your career companion. How can I help you today?",
+          role: 'assistant' as const,
+          timestamp: new Date(),
+        },
+      ] as Message[],
+      createdAt: new Date(),
+    },
+  ]);
+  const [selectedSessionId, setSelectedSessionId] = useState('default');
+  const [isTyping, setIsTyping] = useState(false);
+  const [language, setLanguage] = useState('EN');
+  const [activeSidebar, setActiveSidebar] = useState<"jobs" | "mentors" | null>(null);
+  const [showLeftPane, setShowLeftPane] = useState(true);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // Helper to get current session and messages
+  const currentSession = sessions.find((s) => s.sessionId === selectedSessionId) || sessions[0];
+  const messages = currentSession.messages;
+
+  // Helper to update messages for the current session
+  const setMessages = (updater: (prev: Message[]) => Message[]) => {
+    setSessions((prevSessions) =>
+      prevSessions.map((session) =>
+        session.sessionId === selectedSessionId
+          ? { ...session, messages: updater(session.messages) }
+          : session
+      ) as typeof prevSessions
+    );
+  };
 
   const suggestionChips: SuggestionChip[] = [
     { id: "job_search", label: "Search Jobs", icon: "🔍", color: "#D2B6E2" },
@@ -557,27 +581,48 @@ export default function Home() {
     setMessages((prev) => [...prev, response])
   }
 
+  // Handle selecting a chat session
   const handleSelectChat = (chatId: string) => {
-    // In a real app, this would load the selected chat
-    console.log("Selected chat:", chatId)
-  }
+    setSelectedSessionId(chatId);
+  };
 
+  // Handle creating a new chat session
   const handleNewChat = () => {
-    setMessages([
-      {
-        id: "welcome",
-        content: "Hi there! I'm Asha, your career companion. How can I help you today?",
-        role: "assistant",
-        timestamp: new Date(),
-      },
-    ])
-  }
+    const newSessionId = uuidv4();
+    const welcomeMsg: Message = {
+      id: 'welcome',
+      content: "Hi there! I'm Asha, your career companion. How can I help you today?",
+      role: 'assistant',
+      timestamp: new Date(),
+    };
+    setSessions((prev) => [
+      { sessionId: newSessionId, messages: [welcomeMsg], createdAt: new Date() },
+      ...prev,
+    ]);
+    setSelectedSessionId(newSessionId);
+  };
+
+  // Prepare sessions for LeftPane (with preview and timestamp)
+  const leftPaneSessions = sessions.map((s) => {
+    const lastUserMsg = s.messages.filter((m) => m.role === 'user').pop();
+    return {
+      sessionId: s.sessionId,
+      preview: typeof lastUserMsg?.content === 'string' ? lastUserMsg.content : 'New conversation',
+      timestamp: s.createdAt,
+    };
+  });
 
   return (
     <div className="flex h-screen overflow-hidden">
       {showLeftPane && (
         <div className="w-80 border-r h-screen fixed left-0 top-0">
-          <LeftPane messages={messages} onSelectChat={handleSelectChat} />
+          <LeftPane
+            messages={messages}
+            sessions={leftPaneSessions}
+            selectedSessionId={selectedSessionId}
+            onSelectChat={handleSelectChat}
+            onNewChat={handleNewChat}
+          />
         </div>
       )}
       <div className={`flex-1 flex flex-col ${showLeftPane ? 'ml-80' : ''}`}>
