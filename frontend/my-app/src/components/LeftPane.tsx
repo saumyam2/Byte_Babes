@@ -9,6 +9,7 @@ import { MessageSquare, Upload, Target, AlertCircle, Check, X } from "lucide-rea
 import { UserProfile } from "./UserProfile"
 import { Textarea } from "@/components/ui/textarea";
 import { v4 as uuidv4 } from 'uuid'; // You may need to install this package
+import { fetchAPI } from '@/lib/api';
 
 interface ChatSessionPreview {
   sessionId: string;
@@ -34,6 +35,20 @@ export function LeftPane({ messages, sessions, selectedSessionId, onSelectChat, 
     resumeUpdated: "2 days ago",
     goal: "Become a UX Designer in 6 months"
   })
+
+  useEffect(() => {
+    async function fetchUserName() {
+      try {
+        const response = await fetchAPI("/user/getusername");
+        if (response && response.username) {
+          setUserProfile((prev) => ({ ...prev, name: response.username }));
+        }
+      } catch (error) {
+        // Optionally handle error, fallback to default name
+      }
+    }
+    fetchUserName();
+  }, []);
 
   // Calculate time elapsed since session creation
   const getTimeElapsed = (timestamp: Date) => {
@@ -80,10 +95,10 @@ export function LeftPane({ messages, sessions, selectedSessionId, onSelectChat, 
           </Avatar>
           <div>
             <h3 className="font-medium">{userProfile.name}</h3>
-            <p className="text-sm text-muted-foreground">{userProfile.status}</p>
+            {/* <p className="text-sm text-muted-foreground">{userProfile.status}</p> */}
           </div>
         </div>
-        <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+        {/* <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} name={userProfile.name} /> */}
       </Card>
 
       {/* Session Status */}

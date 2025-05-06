@@ -31,15 +31,6 @@ const SMART_CHIPS: SmartChip[] = [
     message: "I'd like help writing a cold message."
   },
   {
-    id: "events",
-    label: "Find events",
-    icon: "🎉",
-    color: "#D2B6E2",
-    action: "chat_message",
-    message: "Show me upcoming tech events in my area"
-  },
-  
-  {
     id: "skill",
     label: "Skill gap analysis",
     icon: "🧑‍💻",
@@ -79,15 +70,15 @@ const SMART_CHIPS: SmartChip[] = [
     action: "referral",
     message: "I want to generate a referral email for a job."
   },
-  // {
-  //   id: "resume",
-  //   label: "Resume feedback",
-  //   icon: "📝",
-  //   color: "#FFE4EC",
-  //   action: "resume_feedback",
-  //   message: "I'd like feedback on my resume to improve it."
+  {
+    id: "resume",
+    label: "Resume feedback",
+    icon: "📝",
+    color: "#FFE4EC",
+    action: "resume_feedback",
+    message: "I'd like feedback on my resume to improve it."
     
-  // }
+  }
 ]
 
 export function SmartSuggestionChips({ onChipClick }: SmartSuggestionChipsProps) {
