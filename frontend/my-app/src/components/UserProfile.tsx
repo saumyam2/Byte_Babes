@@ -12,11 +12,12 @@ import { Edit2, Mail, Phone, MapPin, Briefcase } from "lucide-react"
 interface UserProfileProps {
   isOpen: boolean
   onClose: () => void
+  name: string
 }
 
-export function UserProfile({ isOpen, onClose }: UserProfileProps) {
+export function UserProfile({ isOpen, onClose, name }: UserProfileProps) {
   const userDetails = {
-    name: "Simran Sota",
+    name: name,
     email: "simran.sota@example.com",
     phone: "+1 (555) 123-4567",
     location: "San Francisco, CA",
