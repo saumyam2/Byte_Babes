@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Message } from "@/types"
-import { MessageSquare, Upload, Target, AlertCircle } from "lucide-react"
+import { MessageSquare, Upload, Target, AlertCircle, Check, X } from "lucide-react"
 import { UserProfile } from "./UserProfile"
+import { Textarea } from "@/components/ui/textarea";
 
 interface LeftPaneProps {
   messages: Message[]
@@ -82,7 +83,23 @@ export function LeftPane({ messages, onSelectChat, onNewChat }: LeftPaneProps) {
       onNewChat()
     }
   }
+  const [isEditing, setIsEditing] = useState(false);
+  const [goal, setGoal] = useState("Transition into UX Design role within the next 6 months by completing certification and building a portfolio of 3-5 projects.");
+  const [tempGoal, setTempGoal] = useState(goal);
 
+  const handleEdit = () => {
+    setTempGoal(goal);
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setGoal(tempGoal);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
   return (
     <div className="w-full h-screen border-r p-4 flex flex-col">
       {/* User Profile Card */}
@@ -104,7 +121,7 @@ export function LeftPane({ messages, onSelectChat, onNewChat }: LeftPaneProps) {
       </Card>
 
       {/* Resume Summary */}
-      <Card className="p-4 mb-4">
+      {/* <Card className="p-4 mb-4">
         <div className="flex items-center gap-2 mb-2">
           <Upload className="h-4 w-4 text-muted-foreground" />
           <h3 className="font-medium">Resume Summary</h3>
@@ -116,7 +133,7 @@ export function LeftPane({ messages, onSelectChat, onNewChat }: LeftPaneProps) {
             Improve Resume
           </Button>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Session Status */}
       <Card className="p-4 mb-4">
@@ -131,15 +148,52 @@ export function LeftPane({ messages, onSelectChat, onNewChat }: LeftPaneProps) {
 
       {/* Goal Banner */}
       <Card className="p-4 mb-4 bg-primary/5">
-        <div className="flex items-center gap-2 mb-2">
-          <Target className="h-4 w-4 text-primary" />
-          <h3 className="font-medium">Your Goal</h3>
-        </div>
-        <p className="text-sm">{userProfile.goal}</p>
-        <Button variant="ghost" size="sm" className="mt-2">
-          Edit Goal
-        </Button>
-      </Card>
+      <div className="flex items-center gap-2 mb-2">
+        <Target className="h-4 w-4 text-primary" />
+        <h3 className="font-medium">Your Goal</h3>
+      </div>
+      
+      {isEditing ? (
+        <>
+          <Textarea 
+            value={tempGoal}
+            onChange={(e) => setTempGoal(e.target.value)}
+            className="min-h-24 text-sm mb-2"
+            placeholder="Enter your career goal..."
+          />
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleCancel}
+              className="flex items-center gap-1"
+            >
+              <X className="h-3 w-3" /> Cancel
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={handleSave}
+              className="flex items-center gap-1"
+            >
+              <Check className="h-3 w-3" /> Save
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-sm">{goal}</p>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mt-2"
+            onClick={handleEdit}
+          >
+            Edit Goal
+          </Button>
+        </>
+      )}
+    </Card>
 
       {/* Recent Topics */}
       <div className="flex-1">
