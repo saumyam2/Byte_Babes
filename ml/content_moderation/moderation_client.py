@@ -1,22 +1,23 @@
 import os
 import requests
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv()
 PERSPECTIVE_API_KEY = os.getenv("PERSPECTIVE_API_KEY")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+genai.configure(api_key=GEMINI_API_KEY)
+gemini_model = genai.GenerativeModel(model_name="gemini-2.0-flash")
 
 PERSPECTIVE_API_URL = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze"
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def check_toxicity(message: str) -> dict:
-    params = {
-        "key": PERSPECTIVE_API_KEY
-    }
+    params = { "key": PERSPECTIVE_API_KEY }
 
     data = {
         "comment": {"text": message},
-        "languages": ["en"],
+        "languages": ["en", "hi"],
         "requestedAttributes": {"TOXICITY": {}},
     }
 
@@ -29,12 +30,8 @@ def check_toxicity(message: str) -> dict:
     return is_toxic, toxicity_score
 
 def check_content_with_llm(message: str) -> str:
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
     prompt = f"""
+    You are a smart assistant that understands Hinglish (Hindi written in English letters).
     You are a content moderator and assistant. Please review the following text:
 
     "{message}"
@@ -43,18 +40,8 @@ def check_content_with_llm(message: str) -> str:
     If yes, respond with 'Yes, harmful' or 'Yes, inappropriate'.
     If no, respond with 'No issue'.
     """
-
-    payload = {
-        "model": "llama3-8b-8192", 
-        "messages": [
-            {"role": "system", "content": "You are a content moderator and assistant."},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.7
-    }
-
-    response = requests.post(GROQ_API_URL, headers=headers, json=payload)
-    response.raise_for_status()
-    result = response.json()
-
-    return result["choices"][0]["message"]["content"].strip().lower()
+    try:
+        response = gemini_model.generate_content(prompt)
+        return response.text.strip().lower()
+    except Exception as e:
+        return f"error: {e}"

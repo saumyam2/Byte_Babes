@@ -1,14 +1,13 @@
 import os
-from langchain_groq import ChatGroq
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
-groq_api_key = os.getenv("GROQ_API_KEY")
+google_api_key = os.getenv("GEMINI_API_KEY")  
 
-groq_chat = ChatGroq(
-    groq_api_key=groq_api_key,
-    model_name="llama3-8b-8192",
-)
+genai.configure(api_key=google_api_key)
+
+model = genai.GenerativeModel(model_name="gemini-2.0-flash")
 
 def generate_career_pathway(req) -> str:
     prompt = (
@@ -37,10 +36,11 @@ def generate_career_pathway(req) -> str:
         "- Side projects to build\n"
         "- Networking strategies\n\n"
         "Make it practical and inspiring."
+        "The output should always be in the same language as the input."
     )
 
     try:
-        response = groq_chat.predict(prompt)
-        return response.strip()
+        response = model.generate_content(prompt)
+        return response.text.strip()
     except Exception as e:
         return f"Error: {e}"
