@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from career_pathway.career_client import generate_career_pathway
+from career_client import generate_career_pathway
 
 router = APIRouter()
 
@@ -10,6 +10,7 @@ class CareerRequest(BaseModel):
     time_frame_years: int
     target_industry: str = ""
     target_companies: list[str] = []
+    user_stage: str  
 
 @router.post("/generate-career-pathway/")
 async def get_career_pathway(request: CareerRequest):

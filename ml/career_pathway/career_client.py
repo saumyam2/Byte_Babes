@@ -15,6 +15,14 @@ def generate_career_pathway(req) -> str:
         f"Create a realistic, motivating career roadmap for someone currently working as a '{req.current_role}' "
         f"who wants to become a '{req.dream_role}' within {req.time_frame_years} years.\n"
     )
+
+    if req.user_stage.lower() == "starter":
+        prompt += "Assume the person is just starting their career (a student or recent graduate).\n"
+    elif req.user_stage.lower() == "restarter":
+        prompt += "Assume the person is restarting their career after a gap or switch.\n"
+    elif req.user_stage.lower() == "riser":
+        prompt += "Assume the person is already experienced and looking to rise into leadership or senior roles.\n"
+
     if req.target_industry:
         prompt += f"Focus on the '{req.target_industry}' industry.\n"
     if req.target_companies:
