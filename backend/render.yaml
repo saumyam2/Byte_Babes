@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: byte-babes
+    env: node
+    buildCommand: |
+      # Install FFmpeg
+      apt-get update
+      apt-get install -y ffmpeg
+      
+      # Download and extract Rhubarb Lip Sync for Linux
+      mkdir -p bin/rhubarb
+      wget -O rhubarb.tar.gz https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.13.0/Rhubarb-Lip-Sync-1.13.0-Linux.tar.gz
+      tar -xzf rhubarb.tar.gz -C bin/rhubarb --strip-components=1
+      chmod +x bin/rhubarb/rhubarb
+      
+      # Continue with normal build
+      npm install
+    startCommand: node app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ELEVEN_LABS_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
